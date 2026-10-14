@@ -20,16 +20,14 @@ export class Text {
         profId: number,
         titulo: string,
         texto: string,
-        data?: Date,
-        materia?: string,
+        data: Date | null = null,
+        materia: string | null = null,
     ){
         this.id = this.validarId(id);
         this.profId = this.validarId(profId);
         this._titulo = this.validarTitulo(titulo);
         this._texto = this.validarTexto(texto);
-        if(data) 
         this._data = data;
-        if(materia)
         this._materia = materia;
     }
 
@@ -79,5 +77,16 @@ export class Text {
             data : this._data ? this._data.toISOString().slice(0, 10) : null,
             materia : this.materia
         }
+    }
+    public static fromDataBase(item: TextRawSQL): Text {
+        const data = item.data ? new Date(item.data) : null
+        return new Text(
+            item.id,
+            item.prof_id,
+            item.titulo,
+            item.texto,
+            data,
+            item.materia
+        )
     }
 }
