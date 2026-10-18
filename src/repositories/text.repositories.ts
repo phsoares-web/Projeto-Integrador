@@ -1,11 +1,11 @@
-import { Text as Texto } from "../models/text.models";
+import { Text as Texto, TextRawSQL } from "../models/text.models";
 import { PrismaClient, Text, Prisma } from '../../generated/prisma';
 
 const prisma = new PrismaClient()
 
 export class TextRepositories {
-    public async criarText(item: Texto): Promise<Text>{
-        const {id, ...dataToSQL } = item.toDataBase()
+    public async criarText(item: Omit<TextRawSQL, "id">): Promise<Text>{
+        const {...dataToSQL } = item
         return await prisma.text.create({
                 data : dataToSQL
             })
@@ -27,7 +27,7 @@ export class TextRepositories {
         })
     }
     public async deletar(id: number): Promise<Text | null> {
-        return prisma.text.delete({
+        return await prisma.text.delete({
             where : {id}
         })
     }

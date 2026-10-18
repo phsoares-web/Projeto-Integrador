@@ -23,10 +23,10 @@ export class Text {
         data: Date | null = null,
         materia: string | null = null,
     ){
-        this.id = this.validarId(id);
-        this.profId = this.validarId(profId);
-        this._titulo = this.validarTitulo(titulo);
-        this._texto = this.validarTexto(texto);
+        this.id = Text.validarId(id);
+        this.profId = Text.validarId(profId);
+        this._titulo = Text.validarTitulo(titulo);
+        this._texto = Text.validarTexto(texto);
         this._data = data;
         this._materia = materia;
     }
@@ -36,10 +36,10 @@ export class Text {
     get data(): Date | null { return this._data }
     get materia(): string | null { return this._materia }
 
-    set titulo(newTitulo: string) { this._titulo = this.validarTitulo(newTitulo) }
-    set texto(newTexto: string) { this._texto = this.validarTexto(newTexto)}    
+    set titulo(newTitulo: string) { this._titulo = Text.validarTitulo(newTitulo) }
+    set texto(newTexto: string) { this._texto = Text.validarTexto(newTexto)}    
 
-    private validarId(id: number): number {
+    private static validarId(id: number): number {
         const erros: string[] = []
         if(isNaN(id)) erros.push("Não é um Número")
         if(!Number.isInteger(id)) erros.push("Não é inteiro")
@@ -48,7 +48,7 @@ export class Text {
 
         return id
     }
-    private validarTitulo(titulo: string): string {
+    private static validarTitulo(titulo: string): string {
         if(!titulo || typeof titulo !== "string") throw new Error("Título é obtigatório")
 
         const novoTitulo = titulo.trim()
@@ -58,7 +58,7 @@ export class Text {
 
         return novoTitulo
     }
-    private validarTexto(texto: string): string {
+    private static validarTexto(texto: string): string {
         if(!texto || typeof texto !== "string") throw new Error("Texto é obrigatório")
 
         const novoTexto = texto.trim()
@@ -68,14 +68,19 @@ export class Text {
         return novoTexto
     }
 
-    public toDataBase(): TextRawSQL {
+    public static toDataBase(
+        profId: number,
+        titulo: string,
+        texto: string,
+        data: Date | null = null,
+        materia: string | null = null,
+    ): Omit<TextRawSQL, "id"> {
         return {
-            id : this.id,
-            prof_id : this.profId,
-            titulo : this.titulo,
-            texto : this.texto,
-            data : this._data ? this._data.toISOString().slice(0, 10) : null,
-            materia : this.materia
+            prof_id : Text.validarId(profId),
+            titulo : Text.validarTitulo(titulo),
+            texto : Text.validarTexto(texto),
+            data : data ? data.toISOString().slice(0, 10) : null,
+            materia
         }
     }
     public static fromDataBase(item: TextRawSQL): Text {
