@@ -105,3 +105,46 @@ btnIniciar.addEventListener("click", () => {
   document.getElementById("aula").scrollIntoView({behavior:"smooth"});
   setTimeout(() => { if (!aulaAtiva) iniciarLegendagem(); }, 450);
 });
+
+// Controles de aula e cronômetro
+const tempo = document.getElementById("tempo");
+const btnNovaAula = document.getElementById("btnNovaAula");
+let segundos = 0;
+let cronometro = null;
+function atualizarTempo() {
+  const minutos = Math.floor(segundos / 60);
+  const restantes = segundos % 60;
+  tempo.textContent = String(minutos).padStart(2, "0") + ":" + String(restantes).padStart(2, "0");
+}
+function iniciarCronometro() {
+  if (cronometro) return;
+  cronometro = setInterval(() => { segundos++; atualizarTempo(); }, 1000);
+}
+function pararCronometro() { clearInterval(cronometro); cronometro = null; }
+// Vincula o cronômetro ao estado da aula sem multiplicar intervalos.
+const iniciarOriginal = iniciarLegendagem;
+iniciarLegendagem = function () { iniciarOriginal(); if (aulaAtiva) iniciarCronometro(); };
+const pausarOriginal = pausarLegendagem;
+pausarLegendagem = function () { pausarOriginal(); pararCronometro(); };
+const erroOriginal = reconhecimento && reconhecimento.onerror;
+if (reconhecimento) reconhecimento.onerror = event => {
+  erroOriginal(event);
+  if (!aulaAtiva) pararCronometro();
+};
+btnNovaAula.addEventListener("click", () => {
+  aulaAtiva = false;
+  pararCronometro();
+  if (reconhecimento && reconhecimentoAtivo) reconhecimento.stop();
+  reconhecimentoAtivo = false;
+  segundos = 0;
+  textoFinal = "";
+  textoIntermediario = "";
+  atualizarTempo();
+  exibirLegenda();
+  atualizarStatus("Aguardando", "status-aguardando");
+  textoBtnLegenda.textContent = "Iniciar legendagem";
+  mensagemSuporte.textContent = reconhecimento
+    ? "Nova aula preparada. Clique em iniciar legendagem."
+    : "Reconhecimento de voz indisponível neste navegador.";
+});
+atualizarTempo();
