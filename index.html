@@ -47,6 +47,17 @@
         <article class="passo"><div class="numero-passo">03</div><h3>O aluno acompanha</h3><p>O conteúdo falado aparece em uma área de legenda clara e de fácil leitura.</p></article>
       </div>
     </div></section>
+    <section class="secao-aula" id="aula"><div class="container">
+      <div class="titulo-aula"><div><span class="subtitulo">SALA DE AULA</span><h2>Legendagem da aula</h2><p>Ative o microfone para transformar a fala em texto.</p></div><div id="statusAula" class="status-aula status-aguardando" role="status" aria-live="polite"><span class="status-ponto"></span><span id="statusTexto">Aguardando</span></div></div>
+      <div class="info-aula"><div class="info-item"><span>Professor</span><strong>Jackson Fernandes</strong></div><div class="divisor"></div><div class="info-item"><span>Disciplina</span><strong id="disciplinaAtual">História</strong></div><div class="divisor"></div><div class="info-item"><span>Tempo da aula</span><strong id="tempo" class="tempo">00:00</strong></div></div>
+      <div class="card-legenda" id="cardLegenda"><div class="legenda-cabecalho"><div><span class="legenda-sinal"></span><h3>Legenda em tempo real</h3></div><div class="ferramentas"><button id="diminuir" type="button" aria-label="Diminuir tamanho da legenda" title="Diminuir fonte">A−</button><button id="aumentar" type="button" aria-label="Aumentar tamanho da legenda" title="Aumentar fonte">A+</button><button id="copiarLegenda" type="button" title="Copiar legenda">Copiar</button><button id="limparLegenda" type="button" title="Limpar legenda">Limpar</button><button id="telaCheia" type="button" title="Exibir legenda em tela cheia">Tela cheia</button></div></div>
+        <div id="legenda" role="log" aria-live="polite" aria-relevant="additions text"><p class="legenda-placeholder">A legenda da aula aparecerá aqui.<span>Clique em “Iniciar legendagem” e permita o acesso ao microfone.</span></p></div>
+        <div class="legenda-rodape"><span id="mensagemSuporte">Microfone ainda não iniciado.</span><span id="tamanhoFonteInfo">Fonte: 28px</span></div>
+      </div>
+      <div class="controles-aula"><button id="btnLegenda" class="btn btn-principal" type="button"><span class="icone-microfone">●</span><span id="textoBtnLegenda">Iniciar legendagem</span></button><button id="btnNovaAula" class="btn btn-secundario" type="button">Nova aula</button></div>
+      <p class="aviso-microfone">Para gerar legendas, o navegador solicitará autorização para utilizar o microfone.</p>
+    </div></section>
   </main>
+  <footer><div class="container rodape-conteudo"><div><strong>EduLegendas</strong><p>Educação acessível para todos.</p></div></div></footer>
 </body>
 </html>
