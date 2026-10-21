@@ -4,7 +4,7 @@
 :root {
     --cor-primaria: #004A8D;
     --cor-primaria-escura: #003B73;
-    --cor-secundaria: #F7941D;
+    --cor-secundaria: #F67828;
 
     --cor-fundo: #F2F7FC;
     --cor-superficie: #ffffff;
@@ -106,7 +106,7 @@ a {
 
 button:focus-visible,
 a:focus-visible {
-    outline: 3px solid #fbbf24;
+    outline: 3px solid #F67828;
     outline-offset: 4px;
 }
 
@@ -566,7 +566,7 @@ a:focus-visible {
 
 
 .bolinha-amarela {
-    background: #f9c74f;
+    background: #F67828;
 }
 
 
@@ -942,7 +942,7 @@ a:focus-visible {
 
 
 .status-ouvindo .status-ponto {
-    background: #F7941D;
+    background: #F67828;
 
     animation: pulsar 1.3s infinite;
 }
@@ -955,7 +955,7 @@ a:focus-visible {
 
 
 .status-pausado .status-ponto {
-    background: #f59e0b;
+    background: #F67828;
 }
 
 
@@ -1347,7 +1347,7 @@ footer {
 :root {
     --cor-primaria: #004A8D;
     --cor-primaria-escura: #003668;
-    --cor-secundaria: #F7941D;
+    --cor-secundaria: #F67828;
     --cor-laranja-claro: #FDC180;
     --cor-laranja-texto: #945000;
     --cor-fundo: #F2F7FC;
@@ -1404,7 +1404,7 @@ button, .btn { -webkit-tap-highlight-color: transparent; }
 .hero::before { background: rgba(247,148,30,.16); filter: blur(25px); }
 .hero-conteudo { gap: clamp(36px, 6vw, 86px); }
 .hero h1 { color: #FFFFFF; }
-.hero h1 span { color: #FDC180; }
+.hero h1 span { color: #F67828; }
 .hero-descricao { color: #E6F1FC; }
 .hero-descricao strong { color: #FFFFFF; }
 .etiqueta {
@@ -1412,7 +1412,7 @@ button, .btn { -webkit-tap-highlight-color: transparent; }
     border: 1px solid rgba(255,255,255,.25);
     color: #FFFFFF;
 }
-.etiqueta-ponto { background: #F7941D; box-shadow: 0 0 0 5px rgba(247,148,30,.19); }
+.etiqueta-ponto { background: #F67828; box-shadow: 0 0 0 5px rgba(247,148,30,.19); }
 .hero-informacoes { color: #E4F0FB; }
 .hero-informacoes span { white-space: nowrap; }
 .btn-principal {
@@ -1423,7 +1423,7 @@ button, .btn { -webkit-tap-highlight-color: transparent; }
 .btn-principal:hover { box-shadow: 0 16px 30px rgba(0,74,141,.27); }
 .hero .btn-principal {
     color: #082F50;
-    background: linear-gradient(135deg, #FDC180, #F7941D);
+    background: linear-gradient(135deg, #FDC180, #F67828);
     box-shadow: 0 13px 30px rgba(11,27,51,.27);
 }
 .hero .btn-principal:hover { box-shadow: 0 18px 36px rgba(11,27,51,.32); }
@@ -1439,7 +1439,7 @@ button, .btn { -webkit-tap-highlight-color: transparent; }
 }
 .demonstracao {
     border: 1px solid rgba(255,255,255,.9);
-    border-top: 5px solid #F7941D;
+    border-top: 5px solid #F67828;
     box-shadow: 0 28px 70px rgba(0,19,47,.31);
     color: #153450;
 }
@@ -1456,7 +1456,7 @@ button, .btn { -webkit-tap-highlight-color: transparent; }
 .secao-aula { background: linear-gradient(180deg, #EDF5FC, #F8FBFE); }
 .info-aula { border-top: 4px solid #F7941D; }
 .card-legenda { border-top: 4px solid #004A8D; }
-.legenda-sinal { background: #F7941D; }
+.legenda-sinal { background: #F67828; }
 .ferramentas button:hover { background: #E7F2FA; border-color: #91B7D3; }
 #legenda { background: linear-gradient(140deg, #092F50, #05243F); }
 .legenda-placeholder { color: #FFFFFF; }
@@ -1468,7 +1468,7 @@ button, .btn { -webkit-tap-highlight-color: transparent; }
     box-shadow: 0 5px 14px rgba(0,74,141,.17);
     color: #FFFFFF;
 }
-footer { border-top: 5px solid #F7941D; background: #062C4E; }
+footer { border-top: 5px solid #F67828; background: #062C4E; }
 .rodape-conteudo p { color: #BBD0E0; }
 
 body.alto-contraste {
