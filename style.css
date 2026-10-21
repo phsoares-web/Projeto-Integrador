@@ -1470,3 +1470,97 @@ button, .btn { -webkit-tap-highlight-color: transparent; }
 }
 footer { border-top: 5px solid #F7941D; background: #062C4E; }
 .rodape-conteudo p { color: #BBD0E0; }
+
+body.alto-contraste {
+    --cor-primaria: #ffff00;
+    --cor-primaria-escura: #ffff00;
+
+    --cor-secundaria: #00ff88;
+
+    --cor-fundo: #000000;
+    --cor-superficie: #080808;
+    --cor-superficie-secundaria: #121212;
+
+    --cor-texto: #ffffff;
+    --cor-texto-secundario: #eeeeee;
+
+    --cor-borda: #ffffff;
+
+    --cor-legenda: #000000;
+    --cor-texto-legenda: #ffff00;
+}
+
+
+body.alto-contraste .btn-principal {
+    background: #ffff00;
+
+    color: #000000;
+
+    box-shadow: none;
+}
+
+
+body.alto-contraste .secao-aula {
+    background: #000;
+}
+
+
+body.alto-contraste .hero {
+    background: #000;
+}
+
+
+body.alto-contraste .demonstracao {
+    background: #080808;
+
+    border-color: #fff;
+}
+
+body.alto-contraste {
+    --cor-primaria: #FFFF00;
+    --cor-primaria-escura: #FFFF00;
+    --cor-secundaria: #00FF88;
+    --cor-fundo: #000000;
+    --cor-superficie: #080808;
+    --cor-superficie-secundaria: #121212;
+    --cor-texto: #FFFFFF;
+    --cor-texto-secundario: #EEEEEE;
+    --cor-borda: #FFFFFF;
+    --cor-legenda: #000000;
+    --cor-texto-legenda: #FFFF00;
+}
+body.alto-contraste .cabecalho,
+body.alto-contraste .hero,
+body.alto-contraste .como-funciona,
+body.alto-contraste .secao-aula,
+body.alto-contraste .disciplinas,
+body.alto-contraste footer { background: #000000; color: #FFFFFF; border-color: #FFFFFF; }
+body.alto-contraste .hero::before,
+body.alto-contraste .hero-visual::before { background: none; }
+body.alto-contraste .hero h1,
+body.alto-contraste .hero h1 span,
+body.alto-contraste .hero-descricao,
+body.alto-contraste .hero-descricao strong,
+body.alto-contraste .hero-informacoes,
+body.alto-contraste .etiqueta,
+body.alto-contraste .logo-texto strong,
+body.alto-contraste .menu a,
+body.alto-contraste .titulo-secao > span,
+body.alto-contraste .subtitulo,
+body.alto-contraste .rodape-conteudo p { color: #FFFFFF; }
+body.alto-contraste .etiqueta { background: #000000; border-color: #FFFFFF; }
+body.alto-contraste .btn-principal,
+body.alto-contraste .hero .btn-principal { background: #FFFF00; color: #000000; box-shadow: none; }
+body.alto-contraste .hero .btn-secundario { background: #000000; color: #FFFFFF; border-color: #FFFFFF; }
+body.alto-contraste .demonstracao,
+body.alto-contraste .passo,
+body.alto-contraste .info-aula,
+body.alto-contraste .card-legenda { background: #080808; color: #FFFFFF; border-color: #FFFFFF; box-shadow: none; }
+body.alto-contraste .legenda-demo,
+body.alto-contraste #legenda { background: #000000; color: #FFFF00; }
+body.alto-contraste .legenda-placeholder,
+body.alto-contraste .legenda-placeholder span,
+body.alto-contraste .texto-intermediario { color: #FFFF00; }
+body.alto-contraste .numero-passo { background: #111111; color: #FFFF00; border: 1px solid #FFFFFF; }
+body.alto-contraste .lista-disciplinas button.disciplina-ativa { background: #FFFF00; border-color: #FFFF00; color: #000000; }
+body.alto-contraste .botao-contraste:hover { color: #FFFF00; }

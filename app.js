@@ -216,3 +216,17 @@ botoesDisciplinas.forEach(botao => {
     document.getElementById("aula").scrollIntoView({behavior:"smooth",block:"start"});
   });
 });
+
+// Modo de alto contraste com preferência persistida
+const btnContraste = document.getElementById("btnContraste");
+btnContraste.addEventListener("click", () => {
+  const ativo = document.body.classList.toggle("alto-contraste");
+  btnContraste.setAttribute("aria-pressed", String(ativo));
+  btnContraste.textContent = ativo ? "Contraste normal" : "Alto contraste";
+  localStorage.setItem("edulegendas-contraste", ativo ? "ativo" : "normal");
+});
+if (localStorage.getItem("edulegendas-contraste") === "ativo") {
+  document.body.classList.add("alto-contraste");
+  btnContraste.setAttribute("aria-pressed", "true");
+  btnContraste.textContent = "Contraste normal";
+}
