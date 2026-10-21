@@ -196,24 +196,59 @@ document.addEventListener("fullscreenchange", () => {
 });
 atualizarFonte();
 
-const disciplinaAtual =
-    document.getElementById("disciplinaAtual");
+
+const disciplinaAtual = document.getElementById("disciplinaAtual");
+const professorAtual = document.getElementById("professorAtual");
 
 const botoesDisciplinas = document.querySelectorAll("[data-disciplina]");
 
+const professores = {
+  "Matemática": "Jarnômio",
+  "Português": "Jade",
+  "Inglês": "Jéssica",
+  "Artes": "Lorena",
+  "Informática": "Alex",
+  "Sociologia": "Jânio",
+  "Educação Física": "Mikael",
+  "Química": "Yasmin",
+  "Física": "Thainá",
+  "Biologia": "Daniel",
+  "Geografia": "Victor",
+  "História": "Jackson"
+};
+
+function selecionarDisciplina(nomeDisciplina) {
+  disciplinaAtual.textContent = nomeDisciplina;
+  professorAtual.textContent =
+    professores[nomeDisciplina] || "Professor não definido";
+
+  botoesDisciplinas.forEach(botao => {
+    const selecionado = botao.dataset.disciplina === nomeDisciplina;
+
+    botao.classList.toggle("disciplina-ativa", selecionado);
+    botao.setAttribute("aria-pressed", String(selecionado));
+  });
+
+  document.getElementById("aula").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
 botoesDisciplinas.forEach(botao => {
-  if (!botao.hasAttribute("aria-pressed")) botao.setAttribute("aria-pressed", "false");
+  botao.setAttribute(
+    "aria-pressed",
+    String(botao.dataset.disciplina === disciplinaAtual.textContent.trim())
+  );
+
   botao.addEventListener("click", () => {
-    botoesDisciplinas.forEach(item => {
-      item.classList.remove("disciplina-ativa");
-      item.setAttribute("aria-pressed", "false");
-    });
-    botao.classList.add("disciplina-ativa");
-    botao.setAttribute("aria-pressed", "true");
-    disciplinaAtual.textContent = botao.dataset.disciplina;
-    document.getElementById("aula").scrollIntoView({behavior:"smooth",block:"start"});
+    selecionarDisciplina(botao.dataset.disciplina);
   });
 });
+
+professorAtual.textContent =
+  professores[disciplinaAtual.textContent.trim()] || "Professor não definido";
+
 
 const btnContraste = document.getElementById("btnContraste");
 btnContraste.addEventListener("click", () => {
