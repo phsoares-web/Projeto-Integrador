@@ -199,3 +199,20 @@ document.addEventListener("fullscreenchange", () => {
   telaCheia.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia";
 });
 atualizarFonte();
+
+// Seleção da disciplina atual
+const disciplinaAtual = document.getElementById("disciplinaAtual");
+const botoesDisciplinas = document.querySelectorAll("[data-disciplina]");
+botoesDisciplinas.forEach(botao => {
+  if (!botao.hasAttribute("aria-pressed")) botao.setAttribute("aria-pressed", "false");
+  botao.addEventListener("click", () => {
+    botoesDisciplinas.forEach(item => {
+      item.classList.remove("disciplina-ativa");
+      item.setAttribute("aria-pressed", "false");
+    });
+    botao.classList.add("disciplina-ativa");
+    botao.setAttribute("aria-pressed", "true");
+    disciplinaAtual.textContent = botao.dataset.disciplina;
+    document.getElementById("aula").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+});
