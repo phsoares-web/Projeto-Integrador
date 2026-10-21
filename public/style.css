@@ -1775,3 +1775,31 @@ body.alto-contraste .botao-contraste:hover { color: #FFFF00; }
     .etiqueta { font-size: 9px; }
     .demonstracao-topo { gap: 8px; }
 }
+
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.logo-imagem {
+    display: block;
+    width: 230px;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+
+@media (max-width: 760px) {
+    .logo-imagem {
+        width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-imagem {
+        width: 175px;
+    }
+}
