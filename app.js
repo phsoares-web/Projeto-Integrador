@@ -148,3 +148,54 @@ btnNovaAula.addEventListener("click", () => {
     : "Reconhecimento de voz indisponível neste navegador.";
 });
 atualizarTempo();
+
+// Ferramentas de exibição e exportação
+const diminuir = document.getElementById("diminuir");
+const aumentar = document.getElementById("aumentar");
+const tamanhoFonteInfo = document.getElementById("tamanhoFonteInfo");
+const copiarLegenda = document.getElementById("copiarLegenda");
+const limparLegenda = document.getElementById("limparLegenda");
+const telaCheia = document.getElementById("telaCheia");
+const cardLegenda = document.getElementById("cardLegenda");
+let tamanhoFonte = 28;
+function atualizarFonte() {
+  legenda.style.fontSize = tamanhoFonte + "px";
+  tamanhoFonteInfo.textContent = `Fonte: ${tamanhoFonte}px`;
+}
+diminuir.addEventListener("click", () => {
+  if (tamanhoFonte > 20) { tamanhoFonte -= 2; atualizarFonte(); }
+});
+aumentar.addEventListener("click", () => {
+  if (tamanhoFonte < 48) { tamanhoFonte += 2; atualizarFonte(); }
+});
+limparLegenda.addEventListener("click", () => {
+  textoFinal = "";
+  textoIntermediario = "";
+  exibirLegenda();
+  mensagemSuporte.textContent = aulaAtiva
+    ? "Legenda limpa. O microfone continua ativo." : "Legenda limpa.";
+});
+copiarLegenda.addEventListener("click", async () => {
+  const texto = textoFinal.trim();
+  if (!texto) { mensagemSuporte.textContent = "Ainda não há legenda para copiar."; return; }
+  try {
+    await navigator.clipboard.writeText(texto);
+    mensagemSuporte.textContent = "Legenda copiada para a área de transferência.";
+    const original = copiarLegenda.textContent;
+    copiarLegenda.textContent = "Copiado ✓";
+    setTimeout(() => { copiarLegenda.textContent = original; }, 1500);
+  } catch (erro) {
+    console.error(erro);
+    mensagemSuporte.textContent = "Não foi possível copiar a legenda.";
+  }
+});
+telaCheia.addEventListener("click", async () => {
+  try {
+    if (!document.fullscreenElement) await cardLegenda.requestFullscreen();
+    else await document.exitFullscreen();
+  } catch (erro) { console.error(erro); }
+});
+document.addEventListener("fullscreenchange", () => {
+  telaCheia.textContent = document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia";
+});
+atualizarFonte();
