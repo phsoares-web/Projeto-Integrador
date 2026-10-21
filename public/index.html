@@ -1,84 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Transforme sua fala em texto com uma transcrição simples e rápida."
-    />
-    <title>Transcreve — sua voz em texto</title>
-    <link rel="stylesheet" href="/style.css" />
-    <script src="/app.js" defer></script>
-  </head>
-  <body>
-    <main class="page">
-      <header class="topbar">
-        <a class="brand" href="/" aria-label="Transcreve, início">
-          <span class="brand-mark" aria-hidden="true">T</span>
-          <span>transcreve</span>
-        </a>
-        <span class="topbar-note">Sua voz, em texto.</span>
-      </header>
-
-      <section class="workspace" aria-labelledby="page-title">
-        <div class="intro">
-          <span class="eyebrow">TRANSCRIÇÃO POR VOZ</span>
-          <h1 id="page-title">Suas ideias merecem ser ouvidas.</h1>
-          <p>Toque no botão e comece a falar. Suas palavras aparecem aqui em tempo real.</p>
-        </div>
-
-        <div class="recorder">
-          <div class="recorder-heading">
-            <div>
-              <span class="section-label">ÁREA DE TRANSCRIÇÃO</span>
-              <p id="status" class="status" role="status" aria-live="polite">
-                Pronto para transcrever
-              </p>
-            </div>
-            <span id="recording-indicator" class="recording-indicator" aria-hidden="true">
-              <span class="indicator-dot"></span>
-              AO VIVO
-            </span>
-          </div>
-
-          <div
-            id="transcript"
-            class="transcript"
-            role="region"
-            aria-label="Transcrição"
-            aria-live="polite"
-            aria-relevant="additions text"
-          >
-            <p id="transcript-placeholder" class="placeholder">
-              Sua transcrição aparecerá aqui enquanto você fala...
-            </p>
-            <p id="final-transcript" class="final-transcript"></p>
-            <p id="interim-transcript" class="interim-transcript"></p>
-          </div>
-
-          <div class="recorder-actions">
-            <button id="start-button" class="start-button" type="button">
-              <svg class="mic-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"
-                />
-                <path d="M19 11v1a7 7 0 0 1-14 0v-1m7 8v3m-4 0h8" />
-              </svg>
-              <span>Iniciar transcrição</span>
-            </button>
-            <button id="clear-button" class="clear-button" type="button" disabled>
-              Limpar texto
-            </button>
-          </div>
-          <p class="privacy-note">
-            <span aria-hidden="true">●</span>
-            O microfone só é usado quando você inicia a transcrição.
-          </p>
-        </div>
-
-        <footer class="page-footer">Fale naturalmente e acompanhe a transcrição em tempo real.</footer>
-      </section>
-    </main>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EduLegendas - legendagem em tempo real para tornar as aulas mais acessíveis.">
+  <meta name="theme-color" content="#004A8D">
+  <title>Senac Transcreve | Acessibilidade em sala de aula</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
+  <header class="cabecalho">
+    <div class="container cabecalho-conteudo">
+      <a href="#inicio" class="logo" aria-label="Senac Transcreve - Página inicial">
+        <div class="logo-icone" aria-hidden="true">ST</div>
+        <div class="logo-texto"><strong>Senac Transcreve</strong><span>Acessibilidade em sala de aula</span></div>
+      </a>
+      <nav class="menu" aria-label="Menu principal">
+        <a href="#inicio">Início</a><a href="#aula">Aula</a><a href="#disciplinas">Disciplinas</a>
+        <button id="btnContraste" class="botao-contraste" type="button" aria-pressed="false">Alto contraste</button>
+      </nav>
+    </div>
+  </header>
+  <main id="conteudo">
+    <section class="hero" id="inicio"><div class="container hero-conteudo">
+      <div class="hero-texto">
+        <div class="etiqueta"><span class="etiqueta-ponto"></span>ACESSIBILIDADE EM TEMPO REAL</div>
+        <h1>A fala do professor <span>virando legenda.</span></h1>
+        <p class="hero-descricao">O <strong>Senac Transcreve</strong> transforma a fala do professor em texto durante a aula, facilitando o acompanhamento do conteúdo e promovendo uma educação mais acessível.</p>
+        <div class="hero-botoes"><button id="btnIniciar" class="btn btn-principal" type="button"><span class="icone-microfone">●</span>Começar uma aula</button><a href="#como-funciona" class="btn btn-secundario">Como funciona</a></div>
+        <div class="hero-informacoes"><span>✓ Legendas em tempo real</span><span>✓ Fonte ajustável</span><span>✓ Alto contraste</span></div>
+      </div>
+      <div class="hero-visual"><div class="demonstracao">
+        <div class="demonstracao-topo"><div><span class="bolinha bolinha-vermelha"></span><span class="bolinha bolinha-amarela"></span><span class="bolinha bolinha-verde"></span></div><span class="ao-vivo"><span></span> LEGENDA AO VIVO</span></div>
+        <div class="professor-demo"><div class="avatar">P</div><div><small>Professor</small><strong>João Silva</strong></div></div>
+        <div class="onda"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="legenda-demo"><small>LEGENDA</small><p>“Hoje vamos compreender como os acontecimentos históricos influenciam a sociedade em que vivemos.”</p></div>
+      </div></div>
+    </div></section>
+    <section class="como-funciona" id="como-funciona"><div class="container">
+      <div class="titulo-secao"><span>COMO FUNCIONA</span><h2>Simples para o professor. Melhor para o aluno.</h2><p>Em poucos passos, a fala da aula pode ser acompanhada também em formato de texto.</p></div>
+      <div class="passos">
+        <article class="passo"><div class="numero-passo">01</div><h3>O professor fala</h3><p>O microfone do dispositivo capta a fala durante a explicação.</p></article>
+        <article class="passo"><div class="numero-passo">02</div><h3>A fala é reconhecida</h3><p>O sistema identifica as palavras pronunciadas pelo professor.</p></article>
+        <article class="passo"><div class="numero-passo">03</div><h3>O aluno acompanha</h3><p>O conteúdo falado aparece em uma área de legenda clara e de fácil leitura.</p></article>
+      </div>
+    </div></section>
+    <section class="secao-aula" id="aula"><div class="container">
+      <div class="titulo-aula"><div><span class="subtitulo">SALA DE AULA</span><h2>Legendagem da aula</h2><p>Ative o microfone para transformar a fala em texto.</p></div><div id="statusAula" class="status-aula status-aguardando" role="status" aria-live="polite"><span class="status-ponto"></span><span id="statusTexto">Aguardando</span></div></div>
+      <div class="info-aula"><div class="info-item">
+    <span>Professor</span>
+    <strong id="professorAtual">Jackson Fernandes</strong>
+</div><div class="divisor"></div><div class="info-item"><span>Disciplina</span><strong id="disciplinaAtual">História</strong></div><div class="divisor"></div><div class="info-item"><span>Tempo da aula</span><strong id="tempo" class="tempo">00:00</strong></div></div>
+      <div class="card-legenda" id="cardLegenda"><div class="legenda-cabecalho"><div><span class="legenda-sinal"></span><h3>Legenda em tempo real</h3></div><div class="ferramentas"><button id="diminuir" type="button" aria-label="Diminuir tamanho da legenda" title="Diminuir fonte">A−</button><button id="aumentar" type="button" aria-label="Aumentar tamanho da legenda" title="Aumentar fonte">A+</button><button id="copiarLegenda" type="button" title="Copiar legenda">Copiar</button><button id="limparLegenda" type="button" title="Limpar legenda">Limpar</button><button id="telaCheia" type="button" title="Exibir legenda em tela cheia">Tela cheia</button></div></div>
+        <div id="legenda" role="log" aria-live="polite" aria-relevant="additions text"><p class="legenda-placeholder">A legenda da aula aparecerá aqui.<span>Clique em “Iniciar legendagem” e permita o acesso ao microfone.</span></p></div>
+        <div class="legenda-rodape"><span id="mensagemSuporte">Microfone ainda não iniciado.</span><span id="tamanhoFonteInfo">Fonte: 28px</span></div>
+      </div>
+      <div class="controles-aula"><button id="btnLegenda" class="btn btn-principal" type="button"><span class="icone-microfone">●</span><span id="textoBtnLegenda">Iniciar legendagem</span></button><button id="btnNovaAula" class="btn btn-secundario" type="button">Nova aula</button></div>
+      <p class="aviso-microfone">Para gerar legendas, o navegador solicitará autorização para utilizar o microfone.</p>
+    </div></section>
+    <section class="disciplinas" id="disciplinas"><div class="container"><div class="titulo-secao titulo-disciplinas"><span>ORGANIZAÇÃO</span><h2>Disciplinas da semana</h2><p>Escolha uma disciplina para identificá-la na aula atual.</p></div><div class="lista-disciplinas">
+      <button data-disciplina="Matemática">Matemática</button>
+      <button data-disciplina="Português">Português</button>
+      <button data-disciplina="Inglês">Inglês</button>
+      <button data-disciplina="Artes">Artes</button>
+      <button data-disciplina="Informática">Informática</button>
+      <button data-disciplina="Sociologia">Sociologia</button>
+      <button data-disciplina="Educação Física">Educação Física</button>
+      <button data-disciplina="Química">Química</button>
+      <button data-disciplina="Física">Física</button>
+      <button data-disciplina="Biologia">Biologia</button>
+      <button data-disciplina="Geografia">Geografia</button>
+      <button data-disciplina="História" class="disciplina-ativa" aria-pressed="true">História</button>
+    </div></div></section>
+  </main>
+  <footer><div class="container rodape-conteudo"><div><strong>Senac Transcreve</strong><p>Educação acessível para todos.</p></div></div></footer>
+</body>
 </html>
