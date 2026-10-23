@@ -3,13 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/serve.ts",
-    "build": "tsc",
-    "start": "node dist/src/serve.js"
+    "dev": "tsx watch --env-file .env src/serve.ts",
+    "build": "npm run prisma:generate && tsc",
+    "start": "node dist/src/serve.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:status": "prisma migrate status",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/adapter-mariadb": "^7.10.0",
     "@prisma/client": "^7.10.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mariadb": "^3.4.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
