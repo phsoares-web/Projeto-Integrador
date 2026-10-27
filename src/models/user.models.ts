@@ -84,7 +84,7 @@ export class User {
         nome : string,
         email : string,
         senha : string,
-        tipo : TipoUsuario
+        tipo : TipoUsuario = TipoUsuario.ALUNO
     ): Omit<UserRawSQL, "id" | "criadoEm"> {
         return {
             nome : User.validarNome(nome),
