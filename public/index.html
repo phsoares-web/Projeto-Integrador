@@ -14,14 +14,14 @@
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 <header class="cabecalho">
   <div class="container cabecalho-conteudo">
-    <a class="logo" href="#inicio" aria-label="Senac Transcreve, início">
+    <a class="logo" data-view-link="inicio" href="#inicio" aria-label="Senac Transcreve, início">
       <img class="logo-imagem" src="img/logo.png" alt="Ícone Senac Transcreve, microfone em forma de S">
       <span>Transcreve</span>
     </a>
     <nav class="menu" aria-label="Navegação principal">
-      <a href="#inicio">Início</a>
-      <a href="#aula">Aula</a>
-      <a href="#disciplinas">Disciplinas</a>
+      <a href="#inicio" data-view-link="inicio">Início</a>
+      <a href="#aula" data-view-link="aula">Aula</a>
+      <a href="#disciplinas" data-view-link="disciplinas">Disciplinas</a>
       <button id="btnContraste" class="botao-contraste" type="button" aria-pressed="false">Alto contraste</button>
     </nav>
   </div>
@@ -76,7 +76,7 @@
       </div>
       <div class="controles-aula">
         <button id="btnLegenda" class="btn btn-principal" type="button"><span aria-hidden="true">♩</span><span id="textoBtnLegenda">Iniciar legendagem</span></button>
-        <button id="btnNovaAula" class="btn btn-secundario" type="button">Nova aula</button>
+        <button id="btnSalvarAula" class="btn btn-secundario" type="button">Salvar aula</button><button id="btnNovaAula" class="btn btn-secundario" type="button">Nova aula</button>
       </div>
       <p class="aviso-microfone">O microfone só é utilizado quando você inicia a transcrição. Autorize o acesso no navegador.</p>
     </div>
@@ -93,26 +93,25 @@
     </div>
   </section>
 
-  <section class="disciplinas" id="disciplinas">
-    <div class="container">
-      <div class="titulo-secao"><span>ORGANIZAÇÃO</span><h2>Disciplinas da semana</h2><p>Escolha a disciplina para identificar o professor e a aula.</p></div>
-      <div class="lista-disciplinas">
-        <button type="button" data-disciplina="Matemática">Matemática</button>
-        <button type="button" data-disciplina="Português">Português</button>
-        <button type="button" data-disciplina="Inglês">Inglês</button>
-        <button type="button" data-disciplina="Artes">Artes</button>
-        <button type="button" data-disciplina="Informática">Informática</button>
-        <button type="button" data-disciplina="Sociologia">Sociologia</button>
-        <button type="button" data-disciplina="Educação Física">Educação Física</button>
-        <button type="button" data-disciplina="Química">Química</button>
-        <button type="button" data-disciplina="Física">Física</button>
-        <button type="button" data-disciplina="Biologia">Biologia</button>
-        <button type="button" data-disciplina="Geografia">Geografia</button>
-        <button type="button" data-disciplina="História" class="disciplina-ativa" aria-pressed="true">História</button>
+  <section class="disciplinas" id="disciplinas" hidden aria-labelledby="titulo-disciplinas">
+    <div class="container painel-materias">
+      <div class="painel-topo">
+        <div><span class="subtitulo">SUA ÁREA DE AULAS</span><h2 id="titulo-disciplinas">Minhas matérias</h2><p>Selecione uma disciplina, crie uma aula ou consulte suas transcrições.</p></div>
+        <label class="busca-label" for="buscarMateria"><span>Buscar matéria</span><input id="buscarMateria" type="search" placeholder="Buscar disciplina..." autocomplete="off"></label>
       </div>
+      <div id="gradeDisciplinas" class="grade-disciplinas" aria-label="Lista de matérias"></div>
+      <section class="arquivo-aulas" aria-labelledby="titulo-salvas">
+        <div class="arquivo-cabecalho"><div><span class="subtitulo">HISTÓRICO LOCAL</span><h2 id="titulo-salvas">Aulas salvas</h2><p>As aulas ficam armazenadas somente neste navegador.</p></div><button type="button" class="btn btn-secundario" id="mostrarTodas">Ver todas</button></div>
+        <div id="listaAulasSalvas" class="lista-aulas-salvas" aria-live="polite"></div>
+      </section>
     </div>
   </section>
 </main>
+<dialog id="dialogAula" class="dialog-aula" aria-labelledby="tituloDialog">
+  <div class="dialog-cabecalho"><h2 id="tituloDialog">Aula salva</h2><button id="fecharDialog" type="button" aria-label="Fechar">✕</button></div>
+  <p id="metaDialog"></p><div id="textoDialog" class="texto-salvo"></div>
+  <div class="dialog-acoes"><button type="button" id="copiarDialog" class="btn btn-principal">Copiar transcrição</button><button type="button" id="fecharDialogRodape" class="btn btn-secundario">Fechar</button></div>
+</dialog>
 <footer><div class="container rodape-conteudo"><strong>Senac Transcreve</strong><p>Educação acessível para todos.</p></div></footer>
 </body>
 </html>

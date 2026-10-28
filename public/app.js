@@ -1,29 +1,20 @@
+
 "use strict";
+const $ = (id) => document.getElementById(id);
 
-const legenda = document.getElementById("legenda");
-const mensagemSuporte = document.getElementById("mensagemSuporte");
-const statusAula = document.getElementById("statusAula");
-const statusTexto = document.getElementById("statusTexto");
+const legenda = $("legenda");
+const mensagemSuporte = $("mensagemSuporte");
+const statusAula = $("statusAula");
+const statusTexto = $("statusTexto");
+const textoBtnLegenda = $("textoBtnLegenda");
+const btnLegenda = $("btnLegenda");
+const btnIniciar = $("btnIniciar");
+const btnNovaAula = $("btnNovaAula");
+const btnSalvarAula = $("btnSalvarAula");
 
-const btnLegenda = document.getElementById("btnLegenda");
-const btnIniciar = document.getElementById("btnIniciar");
-const textoBtnLegenda = document.getElementById("textoBtnLegenda");
-const btnNovaAula = document.getElementById("btnNovaAula");
-
-const tempo = document.getElementById("tempo");
-const diminuir = document.getElementById("diminuir");
-const aumentar = document.getElementById("aumentar");
-const tamanhoFonteInfo = document.getElementById("tamanhoFonteInfo");
-
-const copiarLegenda = document.getElementById("copiarLegenda");
-const limparLegenda = document.getElementById("limparLegenda");
-const telaCheia = document.getElementById("telaCheia");
-const cardLegenda = document.getElementById("cardLegenda");
-
-const disciplinaAtual = document.getElementById("disciplinaAtual");
-const professorAtual = document.getElementById("professorAtual");
-const btnContraste = document.getElementById("btnContraste");
-
+const tempo = $("tempo");
+const disciplinaAtual = $("disciplinaAtual");
+const professorAtual = $("professorAtual");
 
 const SpeechRecognition =
   window.SpeechRecognition ||
@@ -33,56 +24,107 @@ let reconhecimento = null;
 let aulaAtiva = false;
 let reconhecimentoAtivo = false;
 let reconhecimentoIniciando = false;
-
 let textoFinal = "";
 let textoIntermediario = "";
+let segundos = 0;
+let cronometro = null;
+let tamanhoFonte = 28;
+let alteradoAposSalvar = false;
+
+
+const professores = {
+  "Matemática": "Jarnômio",
+  "Português": "Jade",
+  "Inglês": "Jéssica",
+  "Artes": "Lorena",
+  "Informática": "Alex",
+  "Sociologia": "Jânio",
+  "Educação Física": "Mikael",
+  "Química": "Yasmin",
+  "Física": "Thainá",
+  "Biologia": "Daniel",
+  "Geografia": "Victor",
+  "História": "Jackson"
+};
+
+const coresMaterias = [
+  "#0685af", "#c2367d", "#058c61",
+  "#7449c9", "#c24d09", "#005ba0",
+  "#ba2c28", "#078878", "#6553df",
+  "#d04c3b", "#9652c2", "#ea5b22"
+];
 
 function atualizarStatus(texto, classe) {
   statusTexto.textContent = texto;
   statusAula.className = "status-aula " + classe;
 }
 
+function criarElemento(tag, classe, texto = "") {
+  const elemento = document.createElement(tag);
+
+  if (classe) elemento.className = classe;
+
+  elemento.textContent = texto;
+  return elemento;
+}
+
+function criarBotao(texto, classe, acao) {
+  const botao = criarElemento("button", classe, texto);
+  botao.type = "button";
+  botao.addEventListener("click", acao);
+  return botao;
+}
+
 
 function exibirLegenda() {
+  legenda.replaceChildren();
+
   const final = textoFinal.trim();
   const parcial = textoIntermediario.trim();
 
-  legenda.replaceChildren();
-
   if (!final && !parcial) {
-    const paragrafo = document.createElement("p");
-    paragrafo.className = "legenda-placeholder";
-    paragrafo.textContent = "A legenda da aula aparecerá aqui.";
+    const p = criarElemento(
+      "p",
+      "legenda-placeholder",
+      "A legenda da aula aparecerá aqui."
+    );
 
-    const instrucao = document.createElement("span");
-    instrucao.textContent =
-      "Clique em Iniciar legendagem e permita o acesso ao microfone.";
+    const span = criarElemento(
+      "span",
+      "",
+      "Clique em Iniciar legendagem e permita o microfone."
+    );
 
-    paragrafo.appendChild(instrucao);
-    legenda.appendChild(paragrafo);
+    p.appendChild(span);
+    legenda.appendChild(p);
     return;
   }
 
   const conteudo = document.createElement("div");
 
   if (final) {
-    conteudo.appendChild(document.createTextNode(final + " "));
+    conteudo.appendChild(
+      document.createTextNode(final + " ")
+    );
   }
 
   if (parcial) {
-    const span = document.createElement("span");
-    span.className = "texto-intermediario";
-    span.textContent = parcial;
+    const span = criarElemento(
+      "span",
+      "texto-intermediario",
+      parcial
+    );
+
     conteudo.appendChild(span);
   }
 
   legenda.appendChild(conteudo);
   legenda.scrollTop = legenda.scrollHeight;
+
+  if (aulaAtiva) {
+    alteradoAposSalvar = true;
+  }
 }
-
-
-let segundos = 0;
-let cronometro = null;
 
 function atualizarTempo() {
   const minutos = Math.floor(segundos / 60);
@@ -117,9 +159,7 @@ function tentarIniciarReconhecimento() {
     !aulaAtiva ||
     reconhecimentoAtivo ||
     reconhecimentoIniciando
-  ) {
-    return;
-  }
+  ) return;
 
   reconhecimentoIniciando = true;
 
@@ -127,9 +167,7 @@ function tentarIniciarReconhecimento() {
     reconhecimento.start();
   } catch (erro) {
     reconhecimentoIniciando = false;
-    console.warn("Não foi possível iniciar:", erro);
-    mensagemSuporte.textContent =
-      "Não foi possível iniciar o reconhecimento de voz.";
+    console.warn("Erro ao iniciar reconhecimento:", erro);
   }
 }
 
@@ -137,13 +175,11 @@ function iniciarLegendagem() {
   if (!reconhecimento) {
     atualizarStatus("Não suportado", "status-erro");
     mensagemSuporte.textContent =
-      "Seu navegador não oferece suporte ao reconhecimento de voz.";
+      "Seu navegador não suporta reconhecimento de voz.";
     return;
   }
 
   aulaAtiva = true;
-  mensagemSuporte.textContent = "Iniciando microfone...";
-
   tentarIniciarReconhecimento();
 }
 
@@ -151,7 +187,10 @@ function pausarLegendagem() {
   aulaAtiva = false;
   pararCronometro();
 
-  if (reconhecimento && (reconhecimentoAtivo || reconhecimentoIniciando)) {
+  if (
+    reconhecimento &&
+    (reconhecimentoAtivo || reconhecimentoIniciando)
+  ) {
     reconhecimento.stop();
   }
 
@@ -168,7 +207,6 @@ function alternarLegendagem() {
   }
 }
 
-
 if (SpeechRecognition) {
   reconhecimento = new SpeechRecognition();
 
@@ -178,7 +216,7 @@ if (SpeechRecognition) {
   reconhecimento.maxAlternatives = 1;
 
   mensagemSuporte.textContent =
-    "Reconhecimento de voz disponível neste navegador.";
+    "Reconhecimento de voz disponível.";
 
   reconhecimento.onstart = () => {
     reconhecimentoIniciando = false;
@@ -191,8 +229,9 @@ if (SpeechRecognition) {
 
     atualizarStatus("Ouvindo", "status-ouvindo");
     textoBtnLegenda.textContent = "Pausar legendagem";
+
     mensagemSuporte.textContent =
-      "Microfone ativo. A fala está sendo reconhecida.";
+      "Microfone ativo. Reconhecendo a fala.";
 
     iniciarCronometro();
   };
@@ -233,28 +272,28 @@ if (SpeechRecognition) {
 
     } else if (event.error === "audio-capture") {
       aulaAtiva = false;
-      atualizarStatus("Microfone não encontrado", "status-erro");
+      atualizarStatus("Microfone indisponível", "status-erro");
 
       mensagemSuporte.textContent =
-        "Nenhum microfone disponível foi encontrado.";
+        "Nenhum microfone foi encontrado.";
 
     } else if (event.error === "network") {
       aulaAtiva = false;
       atualizarStatus("Erro de conexão", "status-erro");
 
       mensagemSuporte.textContent =
-        "Falha de conexão com o serviço de reconhecimento.";
+        "Falha na conexão com o serviço de voz.";
 
     } else if (event.error === "no-speech") {
       mensagemSuporte.textContent =
-        "Nenhuma fala detectada. Tente falar novamente.";
+        "Nenhuma fala detectada.";
 
     } else {
       aulaAtiva = false;
       atualizarStatus("Erro", "status-erro");
 
       mensagemSuporte.textContent =
-        "Ocorreu um problema no reconhecimento de voz.";
+        "O reconhecimento de voz encontrou um problema.";
     }
 
     if (!aulaAtiva) {
@@ -276,21 +315,18 @@ if (SpeechRecognition) {
   atualizarStatus("Não suportado", "status-erro");
 
   mensagemSuporte.textContent =
-    "Este navegador não suporta reconhecimento de voz.";
+    "Reconhecimento de voz indisponível.";
 }
 
-
-btnLegenda.addEventListener("click", alternarLegendagem);
+btnLegenda.addEventListener(
+  "click",
+  alternarLegendagem
+);
 
 btnIniciar.addEventListener("click", () => {
-  document.getElementById("aula").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-
-  if (!aulaAtiva) {
-    iniciarLegendagem();
-  }
+  history.pushState(null, "", "#aula");
+  navegar("#aula");
+  iniciarLegendagem();
 });
 
 
@@ -298,13 +334,17 @@ btnNovaAula.addEventListener("click", () => {
   aulaAtiva = false;
   pararCronometro();
 
-  if (reconhecimento && (reconhecimentoAtivo || reconhecimentoIniciando)) {
+  if (
+    reconhecimento &&
+    (reconhecimentoAtivo || reconhecimentoIniciando)
+  ) {
     reconhecimento.stop();
   }
 
   segundos = 0;
   textoFinal = "";
   textoIntermediario = "";
+  alteradoAposSalvar = false;
 
   atualizarTempo();
   exibirLegenda();
@@ -312,29 +352,25 @@ btnNovaAula.addEventListener("click", () => {
   atualizarStatus("Aguardando", "status-aguardando");
   textoBtnLegenda.textContent = "Iniciar legendagem";
 
-  mensagemSuporte.textContent = reconhecimento
-    ? "Nova aula preparada. Clique para iniciar."
-    : "Reconhecimento de voz indisponível.";
+  mensagemSuporte.textContent =
+    "Nova aula preparada. Clique em Iniciar legendagem.";
 });
-
-
-let tamanhoFonte = 28;
 
 function atualizarFonte() {
   legenda.style.fontSize = tamanhoFonte + "px";
 
-  tamanhoFonteInfo.textContent =
+  $("tamanhoFonteInfo").textContent =
     "Fonte: " + tamanhoFonte + "px";
 }
 
-diminuir.addEventListener("click", () => {
+$("diminuir").addEventListener("click", () => {
   if (tamanhoFonte > 20) {
     tamanhoFonte -= 2;
     atualizarFonte();
   }
 });
 
-aumentar.addEventListener("click", () => {
+$("aumentar").addEventListener("click", () => {
   if (tamanhoFonte < 48) {
     tamanhoFonte += 2;
     atualizarFonte();
@@ -342,51 +378,40 @@ aumentar.addEventListener("click", () => {
 });
 
 
-limparLegenda.addEventListener("click", () => {
+$("limparLegenda").addEventListener("click", () => {
   textoFinal = "";
   textoIntermediario = "";
 
+  alteradoAposSalvar = true;
   exibirLegenda();
-
-  mensagemSuporte.textContent = aulaAtiva
-    ? "Legenda limpa. O microfone continua ativo."
-    : "Legenda limpa.";
 });
 
-
-copiarLegenda.addEventListener("click", async () => {
+$("copiarLegenda").addEventListener("click", async () => {
   const texto = textoFinal.trim();
 
   if (!texto) {
     mensagemSuporte.textContent =
-      "Ainda não há legenda para copiar.";
+      "Não há texto para copiar.";
     return;
   }
 
   try {
     await navigator.clipboard.writeText(texto);
 
-    mensagemSuporte.textContent = "Legenda copiada!";
-
-    const original = copiarLegenda.textContent;
-    copiarLegenda.textContent = "Copiado ✓";
-
-    setTimeout(() => {
-      copiarLegenda.textContent = original;
-    }, 1500);
+    mensagemSuporte.textContent =
+      "Legenda copiada com sucesso.";
 
   } catch (erro) {
-    console.error(erro);
-
     mensagemSuporte.textContent =
-      "Não foi possível copiar. Use HTTPS ou localhost.";
+      "Não foi possível copiar a legenda.";
   }
 });
 
-telaCheia.addEventListener("click", async () => {
+
+$("telaCheia").addEventListener("click", async () => {
   try {
     if (!document.fullscreenElement) {
-      await cardLegenda.requestFullscreen();
+      await $("cardLegenda").requestFullscreen();
     } else {
       await document.exitFullscreen();
     }
@@ -396,78 +421,480 @@ telaCheia.addEventListener("click", async () => {
 });
 
 document.addEventListener("fullscreenchange", () => {
-  telaCheia.textContent = document.fullscreenElement
+  $("telaCheia").textContent = document.fullscreenElement
     ? "Sair da tela cheia"
     : "Tela cheia";
 });
 
-const professores = {
-  "Matemática": "Jarnômio",
-  "Português": "Jade",
-  "Inglês": "Jéssica",
-  "Artes": "Lorena",
-  "Informática": "Alex",
-  "Sociologia": "Jânio",
-  "Educação Física": "Mikael",
-  "Química": "Yasmin",
-  "Física": "Thainá",
-  "Biologia": "Daniel",
-  "Geografia": "Victor",
-  "História": "Jackson"
-};
 
-const botoesDisciplinas =
-  document.querySelectorAll("[data-disciplina]");
+const chaveAulas = "senac-transcreve-aulas-v1";
 
-function selecionarDisciplina(nomeDisciplina) {
-  disciplinaAtual.textContent = nomeDisciplina;
-
-  professorAtual.textContent =
-    professores[nomeDisciplina] || "Professor não definido";
-
-  botoesDisciplinas.forEach((botao) => {
-    const selecionado =
-      botao.dataset.disciplina === nomeDisciplina;
-
-    botao.classList.toggle(
-      "disciplina-ativa",
-      selecionado
+function carregarAulas() {
+  try {
+    const dados = JSON.parse(
+      localStorage.getItem(chaveAulas) || "[]"
     );
 
-    botao.setAttribute(
-      "aria-pressed",
-      String(selecionado)
-    );
-  });
+    return Array.isArray(dados) ? dados : [];
 
-  document.getElementById("aula").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
+  } catch (erro) {
+    console.warn("Erro ao carregar aulas:", erro);
+    return [];
+  }
+}
+
+function gravarAulas(aulas) {
+  try {
+    localStorage.setItem(
+      chaveAulas,
+      JSON.stringify(aulas)
+    );
+
+    return true;
+
+  } catch (erro) {
+    alert(
+      "Não foi possível salvar. Verifique o armazenamento do navegador."
+    );
+
+    return false;
+  }
+}
+
+function formatarData(data) {
+  return new Date(data).toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short"
   });
 }
 
-botoesDisciplinas.forEach((botao) => {
-  botao.setAttribute(
-    "aria-pressed",
-    String(
-      botao.dataset.disciplina ===
-      disciplinaAtual.textContent.trim()
-    )
+
+btnSalvarAula.addEventListener("click", () => {
+  const texto = textoFinal.trim();
+
+  if (!texto) {
+    alert("Ainda não há uma transcrição para salvar.");
+    return;
+  }
+
+  const sugestao =
+    "Aula de " +
+    disciplinaAtual.textContent +
+    " - " +
+    new Date().toLocaleDateString("pt-BR");
+
+  const titulo = prompt(
+    "Digite um título para esta aula:",
+    sugestao
   );
 
-  botao.addEventListener("click", () => {
-    selecionarDisciplina(botao.dataset.disciplina);
+  if (titulo === null) return;
+
+  if (!titulo.trim()) {
+    alert("Informe um título para a aula.");
+    return;
+  }
+
+  const aulas = carregarAulas();
+
+  const novaAula = {
+    id:
+      Date.now().toString() +
+      "-" +
+      Math.random().toString(36).slice(2),
+
+    titulo: titulo.trim().slice(0, 120),
+    disciplina: disciplinaAtual.textContent,
+    professor: professorAtual.textContent,
+    duracao: tempo.textContent,
+    texto: texto,
+    criadaEm: new Date().toISOString()
+  };
+
+  aulas.push(novaAula);
+
+  if (gravarAulas(aulas)) {
+    alteradoAposSalvar = false;
+
+    mensagemSuporte.textContent =
+      "Aula salva! Acesse Disciplinas para visualizar.";
+
+    atualizarPainel();
+  }
+});
+
+
+const gradeDisciplinas = $("gradeDisciplinas");
+const listaAulasSalvas = $("listaAulasSalvas");
+const buscarMateria = $("buscarMateria");
+const dialogAula = $("dialogAula");
+
+let filtroMateria = "";
+let aulaAberta = null;
+
+function selecionarDisciplina(nome) {
+  disciplinaAtual.textContent = nome;
+
+  professorAtual.textContent =
+    professores[nome] || "Professor não definido";
+}
+
+
+function mostrarVisao(visao) {
+  const materias = visao === "disciplinas";
+
+  $("inicio").hidden = materias;
+  $("aula").hidden = materias;
+  $("como-funciona").hidden = materias;
+
+  $("disciplinas").hidden = !materias;
+
+  if (materias) {
+    atualizarPainel();
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: "instant"
+  });
+}
+
+function navegar(hash) {
+  if (hash === "#disciplinas") {
+    mostrarVisao("disciplinas");
+    return;
+  }
+
+  mostrarVisao("inicio");
+
+  const destinos = [
+    "#aula",
+    "#como-funciona"
+  ];
+
+  const destino = destinos.includes(hash)
+    ? hash
+    : "#inicio";
+
+  requestAnimationFrame(() => {
+    document.querySelector(destino).scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+}
+
+document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const destino = link.getAttribute("href");
+
+    const permitidos = [
+      "#inicio",
+      "#aula",
+      "#disciplinas",
+      "#como-funciona"
+    ];
+
+    if (!permitidos.includes(destino)) return;
+
+    event.preventDefault();
+
+    history.pushState(null, "", destino);
+    navegar(destino);
   });
 });
 
-professorAtual.textContent =
-  professores[disciplinaAtual.textContent.trim()] ||
-  "Professor não definido";
+window.addEventListener("popstate", () => {
+  navegar(location.hash);
+});
 
+
+function iniciarNovaAulaDaMateria(nome) {
+  if (
+    alteradoAposSalvar &&
+    (textoFinal.trim() || textoIntermediario.trim())
+  ) {
+    const confirmar = confirm(
+      "A transcrição atual não foi salva. Deseja descartá-la?"
+    );
+
+    if (!confirmar) return;
+  }
+
+  btnNovaAula.click();
+
+  selecionarDisciplina(nome);
+
+  history.pushState(null, "", "#aula");
+  navegar("#aula");
+
+  mensagemSuporte.textContent =
+    "Aula de " + nome + " preparada.";
+}
+
+function criarCardMateria(nome, indice) {
+  const card = criarElemento(
+    "article",
+    "materia-card"
+  );
+
+  card.style.setProperty(
+    "--cor-materia",
+    coresMaterias[indice % coresMaterias.length]
+  );
+
+  const titulo = criarElemento("h3", "", nome);
+
+  const professor = criarElemento(
+    "p",
+    "materia-professor",
+    "Professor(a): " + professores[nome]
+  );
+
+  const quantidade = carregarAulas().filter(
+    (aula) => aula.disciplina === nome
+  ).length;
+
+  const total = criarElemento(
+    "p",
+    "materia-total",
+    quantidade +
+    (quantidade === 1 ? " aula salva" : " aulas salvas")
+  );
+
+  const acoes = criarElemento(
+    "div",
+    "materia-acoes"
+  );
+
+  const btnNova = criarBotao(
+    "+ Nova aula",
+    "botao-materia-primario",
+    () => iniciarNovaAulaDaMateria(nome)
+  );
+
+  const btnSalvas = criarBotao(
+    "Aulas salvas",
+    "botao-materia-outline",
+    () => {
+      filtroMateria = nome;
+      atualizarAulasSalvas();
+
+      $("titulo-salvas").scrollIntoView({
+        behavior: "smooth"
+      });
+    }
+  );
+
+  acoes.append(btnNova, btnSalvas);
+
+  card.append(
+    titulo,
+    professor,
+    total,
+    acoes
+  );
+
+  return card;
+}
+
+function atualizarPainel() {
+  const filtro = buscarMateria.value
+    .trim()
+    .toLocaleLowerCase("pt-BR");
+
+  gradeDisciplinas.replaceChildren();
+
+  Object.keys(professores).forEach((nome, indice) => {
+    if (
+      !nome.toLocaleLowerCase("pt-BR").includes(filtro)
+    ) return;
+
+    gradeDisciplinas.appendChild(
+      criarCardMateria(nome, indice)
+    );
+  });
+
+  if (!gradeDisciplinas.children.length) {
+    gradeDisciplinas.appendChild(
+      criarElemento(
+        "p",
+        "vazio",
+        "Nenhuma matéria encontrada."
+      )
+    );
+  }
+
+  atualizarAulasSalvas();
+}
+
+buscarMateria.addEventListener(
+  "input",
+  atualizarPainel
+);
+
+function atualizarAulasSalvas() {
+  const aulas = carregarAulas().filter((aula) => {
+    return (
+      !filtroMateria ||
+      aula.disciplina === filtroMateria
+    );
+  });
+
+  listaAulasSalvas.replaceChildren();
+
+  if (!aulas.length) {
+    listaAulasSalvas.appendChild(
+      criarElemento(
+        "p",
+        "vazio",
+        "Nenhuma aula salva encontrada."
+      )
+    );
+
+    return;
+  }
+
+  aulas.sort((a, b) => {
+    return new Date(b.criadaEm) - new Date(a.criadaEm);
+  });
+
+  aulas.forEach((aula) => {
+    const item = criarElemento(
+      "article",
+      "aula-salva-item"
+    );
+
+    const conteudo = criarElemento("div");
+
+    const titulo = criarElemento(
+      "strong",
+      "",
+      aula.titulo
+    );
+
+    const informacoes = criarElemento(
+      "p",
+      "",
+      aula.disciplina +
+      " • " +
+      formatarData(aula.criadaEm) +
+      " • " +
+      aula.duracao
+    );
+
+    conteudo.append(titulo, informacoes);
+
+    const acoes = criarElemento(
+      "div",
+      "aula-salva-acoes"
+    );
+
+    const abrir = criarBotao(
+      "Abrir",
+      "botao-materia-outline",
+      () => abrirAulaSalva(aula)
+    );
+
+    const excluir = criarBotao(
+      "Excluir",
+      "botao-excluir",
+      () => excluirAula(aula.id)
+    );
+
+    acoes.append(abrir, excluir);
+    item.append(conteudo, acoes);
+
+    listaAulasSalvas.appendChild(item);
+  });
+}
+
+
+function abrirAulaSalva(aula) {
+  aulaAberta = aula;
+
+  $("tituloDialog").textContent =
+    aula.disciplina + " — " + aula.titulo;
+
+  $("metaDialog").textContent =
+    "Professor(a): " +
+    aula.professor +
+    " • " +
+    formatarData(aula.criadaEm) +
+    " • Duração: " +
+    aula.duracao;
+
+  $("textoDialog").textContent = aula.texto;
+
+  dialogAula.showModal();
+}
+
+
+function excluirAula(id) {
+  const aulas = carregarAulas();
+
+  const aula = aulas.find((item) => {
+    return item.id === id;
+  });
+
+  if (!aula) return;
+
+  const confirmar = confirm(
+    "Deseja excluir definitivamente a aula '" +
+    aula.titulo +
+    "'?"
+  );
+
+  if (!confirmar) return;
+
+  const atualizadas = aulas.filter((item) => {
+    return item.id !== id;
+  });
+
+  if (gravarAulas(atualizadas)) {
+    atualizarPainel();
+  }
+}
+
+$("mostrarTodas").addEventListener("click", () => {
+  filtroMateria = "";
+  atualizarAulasSalvas();
+});
+
+$("fecharDialog").addEventListener("click", () => {
+  dialogAula.close();
+});
+
+$("fecharDialogRodape").addEventListener("click", () => {
+  dialogAula.close();
+});
+
+$("copiarDialog").addEventListener("click", async () => {
+  if (!aulaAberta) return;
+
+  try {
+    await navigator.clipboard.writeText(
+      aulaAberta.texto
+    );
+
+    $("copiarDialog").textContent = "Copiado ✓";
+
+    setTimeout(() => {
+      $("copiarDialog").textContent =
+        "Copiar transcrição";
+    }, 1500);
+
+  } catch (erro) {
+    alert("Não foi possível copiar a transcrição.");
+  }
+});
+
+const btnContraste = $("btnContraste");
 
 btnContraste.addEventListener("click", () => {
-  const ativo =
-    document.body.classList.toggle("alto-contraste");
+  const ativo = document.body.classList.toggle(
+    "alto-contraste"
+  );
 
   btnContraste.setAttribute(
     "aria-pressed",
@@ -484,24 +911,35 @@ btnContraste.addEventListener("click", () => {
       ativo ? "ativo" : "normal"
     );
   } catch (erro) {
-    console.warn("Não foi possível salvar a preferência.", erro);
+    console.warn("Preferência não salva:", erro);
   }
 });
 
 try {
   if (
-    localStorage.getItem("edulegendas-contraste") === "ativo"
+    localStorage.getItem("edulegendas-contraste") ===
+    "ativo"
   ) {
     document.body.classList.add("alto-contraste");
 
-    btnContraste.setAttribute("aria-pressed", "true");
+    btnContraste.setAttribute(
+      "aria-pressed",
+      "true"
+    );
+
     btnContraste.textContent = "Contraste normal";
   }
 } catch (erro) {
-  console.warn("Preferência de contraste indisponível.", erro);
+  console.warn("Armazenamento indisponível:", erro);
 }
-
 
 atualizarTempo();
 atualizarFonte();
 exibirLegenda();
+
+selecionarDisciplina(
+  disciplinaAtual.textContent.trim()
+);
+
+atualizarPainel();
+navegar(location.hash);
