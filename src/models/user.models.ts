@@ -1,5 +1,16 @@
-interface UserRawSQL {
-
+export interface UserRawSQL {
+    id: number,
+    nome: string,
+    email: string,
+    senha: string,
+    tipo: TipoUsuario,
+    criadoEm: Date
+    
+}
+export enum TipoUsuario {
+    ALUNO = "ALUNO",
+    PROFESSOR ="PROFESSOR",
+    ADMIN = "ADMIN"
 }
 
 export class User {
@@ -7,26 +18,26 @@ export class User {
     private _nome : string;
     private _email : string;
     private _senha : string;
-    private _professor : boolean = false;
+    private _tipo : TipoUsuario;
 
     constructor(
         id : number,
         nome : string,
         email : string,
         senha : string,
-        professor : boolean = false
+        tipo : TipoUsuario
     ) {
         this.id = User.validarId(id);
         this._nome = User.validarNome(nome);
         this._email = User.validarEmail(email);
         this._senha = User.validarSenha(senha);
-        this._professor = professor;
+        this._tipo = tipo;
     }
 
     get nome(): string { return this._nome }
     get email(): string { return this._email }
     get senha(): string { return this._senha }
-    get professor(): boolean { return this._professor }
+    get tipo(): TipoUsuario { return this._tipo }
 
     set nome(newNome: string) { this._nome = User.validarNome(newNome) }
     set email(newEmail: string) { this._email = User.validarEmail(newEmail)}
@@ -73,13 +84,13 @@ export class User {
         nome : string,
         email : string,
         senha : string,
-        professor : boolean = false
-    ): Omit<UserRawSQL, "id"> {
+        tipo : TipoUsuario = TipoUsuario.ALUNO
+    ): Omit<UserRawSQL, "id" | "criadoEm"> {
         return {
             nome : User.validarNome(nome),
             email : User.validarEmail(email),
             senha : User.validarSenha(senha),
-            professor
+            tipo
         }
     }
 }
