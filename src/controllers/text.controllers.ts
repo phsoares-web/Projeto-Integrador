@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { TextRepositories } from "../repositories/text.repositories";
 import { Text } from "../models/text.models";
+import { authMiddleware } from "../middlewares/auth.middlewares";
 
 const repo = new TextRepositories();
 const idInvalido = (id: number): boolean => !Number.isInteger(id) || id <= 0;

@@ -19,3 +19,4 @@ export function authMiddleware(req: Request & { user?: any }, res: Response, nex
     res.status(401).json({ erro: "Token inválido." });
   }
 }
+
