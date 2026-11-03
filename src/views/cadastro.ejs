@@ -1,0 +1,403 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Cadastre-se no Senac Transcreve para acessar a transcrição de voz em tempo real.">
+
+  <meta name="theme-color" content="#ff7824">
+
+  <title>Cadastrar | Senac Transcreve</title>
+
+  <link rel="icon" type="image/png" href="/img/logo.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/login.css">
+</head>
+
+<body>
+
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="cabecalho">
+    <div class="container cabecalho-conteudo">
+
+      <a class="logo" href="index.html" aria-label="Senac Transcreve, início">
+        <img class="logo-imagem" src="img/logo.png" alt="Ícone Senac Transcreve">
+        <span>Transcreve</span>
+      </a>
+
+      <nav class="menu" aria-label="Navegação principal">
+        <a href="index.html">Início</a>
+        <a href="aula.html">Aula</a>
+        <a href="login.html">Entrar</a>
+      </nav>
+
+    </div>
+  </header>
+
+  <main id="conteudo" class="secao-login">
+
+    <div class="container login-container">
+
+      <div class="login-titulo">
+        <h1>Criar sua conta</h1>
+        <p>Preencha seus dados para acessar as aulas.</p>
+      </div>
+
+      <div class="card-login">
+
+        <form id="form-cadastro" novalidate>
+
+          <p id="mensagem" class="login-mensagem" role="alert" hidden></p>
+
+          <div class="campo">
+            <label for="nome">Nome</label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              placeholder="Pedro Guilherme"
+              autocomplete="name"
+              required
+              aria-describedby="erro-nome"
+            >
+            <p class="campo-erro" id="erro-nome"></p>
+          </div>
+
+          <div class="campo">
+            <label for="email">E-mail</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="voce@exemplo.com"
+              autocomplete="email"
+              required
+              aria-describedby="erro-email"
+            >
+            <p class="campo-erro" id="erro-email"></p>
+          </div>
+
+          <div class="campo">
+            <label for="senha">Senha</label>
+
+            <div class="campo-senha">
+              <input
+                type="password"
+                id="senha"
+                name="senha"
+                placeholder="Digite sua senha"
+                autocomplete="new-password"
+                required
+                minlength="6"
+                aria-describedby="erro-senha"
+              >
+
+              <button
+                type="button"
+                class="btn-mostrar"
+                aria-controls="senha"
+                aria-pressed="false"
+              >Mostrar</button>
+            </div>
+
+            <p class="campo-erro" id="erro-senha"></p>
+          </div>
+
+          <div class="campo">
+            <label for="senha2">Confirme sua senha</label>
+
+            <div class="campo-senha">
+              <input
+                type="password"
+                id="senha2"
+                name="senha2"
+                placeholder="Confirme sua senha"
+                autocomplete="new-password"
+                required
+                minlength="6"
+                aria-describedby="erro-senha2"
+              >
+
+              <button
+                type="button"
+                class="btn-mostrar"
+                aria-controls="senha2"
+                aria-pressed="false"
+              >Mostrar</button>
+            </div>
+
+            <p class="campo-erro" id="erro-senha2"></p>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-principal btn-largo"
+            id="botao-cadastrar"
+          >Cadastrar</button>
+
+        </form>
+
+      </div>
+
+      <p class="login-rodape">
+        Já possui uma conta?
+        <a class="link" href="login.html">Entrar</a>
+      </p>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="container rodape-conteudo">
+      <strong>Senac Transcreve</strong>
+      <p>Educação acessível para todos.</p>
+    </div>
+  </footer>
+
+  <script>
+    "use strict";
+
+    const form = document.getElementById("form-cadastro");
+
+    const nome = document.getElementById("nome");
+    const email = document.getElementById("email");
+    const senha = document.getElementById("senha");
+    const senha2 = document.getElementById("senha2");
+
+    const erroNome = document.getElementById("erro-nome");
+    const erroEmail = document.getElementById("erro-email");
+    const erroSenha = document.getElementById("erro-senha");
+    const erroSenha2 = document.getElementById("erro-senha2");
+
+    const mensagem = document.getElementById("mensagem");
+    const botao = document.getElementById("botao-cadastrar");
+
+    // Mostrar e ocultar senhas
+    document.querySelectorAll(".btn-mostrar").forEach((alternar) => {
+
+      alternar.addEventListener("click", () => {
+
+        const campo = document.getElementById(
+          alternar.getAttribute("aria-controls")
+        );
+
+        const visivel = campo.type === "text";
+
+        campo.type = visivel ? "password" : "text";
+
+        alternar.textContent = visivel ? "Mostrar" : "Ocultar";
+
+        alternar.setAttribute("aria-pressed", String(!visivel));
+
+      });
+
+    });
+
+    // Função genérica para marcar erros
+    function marcarErro(campo, elementoErro, texto) {
+
+      campo.setAttribute("aria-invalid", texto ? "true" : "false");
+
+      elementoErro.textContent = texto;
+
+      return !texto;
+
+    }
+
+    // Validação do nome
+    function validarNome() {
+
+      const v = nome.value.trim();
+
+      if (!v) {
+        return marcarErro(nome, erroNome, "Digite seu nome.");
+      }
+
+      if (v.length < 2) {
+        return marcarErro(nome, erroNome, "Digite um nome válido.");
+      }
+
+      return marcarErro(nome, erroNome, "");
+
+    }
+
+    // Validação do e-mail
+    function validarEmail() {
+
+      const v = email.value.trim();
+
+      if (!v) {
+        return marcarErro(email, erroEmail, "Digite seu e-mail.");
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+
+        return marcarErro(
+          email,
+          erroEmail,
+          "Digite um e-mail válido."
+        );
+
+      }
+
+      return marcarErro(email, erroEmail, "");
+
+    }
+
+    // Validação da senha
+    function validarSenha() {
+
+      if (!senha.value) {
+        return marcarErro(senha, erroSenha, "Digite sua senha.");
+      }
+
+      if (senha.value.length < 6) {
+
+        return marcarErro(
+          senha,
+          erroSenha,
+          "A senha precisa ter pelo menos 6 caracteres."
+        );
+
+      }
+
+      return marcarErro(senha, erroSenha, "");
+
+    }
+
+    // Validação da confirmação
+    function validarSenha2() {
+
+      if (!senha2.value) {
+
+        return marcarErro(
+          senha2,
+          erroSenha2,
+          "Confirme sua senha."
+        );
+
+      }
+
+      if (senha.value !== senha2.value) {
+
+        return marcarErro(
+          senha2,
+          erroSenha2,
+          "As senhas precisam ser iguais."
+        );
+
+      }
+
+      return marcarErro(senha2, erroSenha2, "");
+
+    }
+
+    // Eventos de validação
+    nome.addEventListener("blur", validarNome);
+    email.addEventListener("blur", validarEmail);
+    senha.addEventListener("blur", validarSenha);
+    senha2.addEventListener("blur", validarSenha2);
+
+    senha.addEventListener("input", () => {
+
+      if (senha2.value) {
+        validarSenha2();
+      }
+
+    });
+
+    function mostrarMensagem(texto, tipo) {
+
+      mensagem.textContent = texto;
+
+      mensagem.className = "login-mensagem " + tipo;
+
+      mensagem.hidden = false;
+
+    }
+
+    // Envio do cadastro
+    form.addEventListener("submit", async (e) => {
+
+      e.preventDefault();
+
+      mensagem.hidden = true;
+
+      const okNome = validarNome();
+      const okEmail = validarEmail();
+      const okSenha = validarSenha();
+      const okSenha2 = validarSenha2();
+
+      if (!okNome) return nome.focus();
+      if (!okEmail) return email.focus();
+      if (!okSenha) return senha.focus();
+      if (!okSenha2) return senha2.focus();
+
+      botao.disabled = true;
+      botao.textContent = "Cadastrando...";
+
+      try {
+
+        const resp = await fetch("/api/usuarios/cadastrar", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            nome: nome.value.trim(),
+            email: email.value.trim(),
+            senha: senha.value
+
+          })
+
+        });
+
+        const dados = await resp.json();
+
+        if (!resp.ok) {
+
+          throw new Error(
+            dados.mensagem || "Não foi possível realizar o cadastro."
+          );
+
+        }
+
+        mostrarMensagem(
+          "Cadastro realizado com sucesso! Redirecionando...",
+          "sucesso"
+        );
+
+        setTimeout(() => {
+
+          window.location.href = "login.html";
+
+        }, 1200);
+
+      } catch (erro) {
+
+        mostrarMensagem(
+          erro.message || "Erro ao conectar com o servidor.",
+          "erro"
+        );
+
+        botao.disabled = false;
+        botao.textContent = "Cadastrar";
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
+```
