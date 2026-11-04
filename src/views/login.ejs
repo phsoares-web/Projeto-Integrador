@@ -82,6 +82,9 @@
       </div>
 
       <p class="login-rodape">
+        Não possui uma conta?<a class="link" href="cadastro"> cadastrar conta</a>
+      </p>
+      <p class="login-rodape">
         Quer só testar? <a class="link" href="aula.html">Ir direto para a aula</a>
       </p>
 
@@ -97,8 +100,6 @@
   </footer>
 
   <script>
-    "use strict";
-
     const form = document.getElementById("form-login");
     const email = document.getElementById("email");
     const senha = document.getElementById("senha");
@@ -158,13 +159,12 @@
       botao.textContent = "Entrando...";
 
       try {
-        // TODO: troque pela chamada real ao seu servidor, por exemplo:
-        // const resp = await fetch("/api/login", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify({ email: email.value.trim(), senha: senha.value })
-        // });
-        // if (!resp.ok) throw new Error("credenciais");
+        const resp = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.value.trim(), senha: senha.value })
+        });
+        if (!resp.ok) throw new Error("credenciais");
         await new Promise((r) => setTimeout(r, 800));
 
         mostrarMensagem("Login feito com sucesso. Abrindo a aula...", "sucesso");

@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -64,7 +63,6 @@
               required
               aria-describedby="erro-nome"
             >
-            <p class="campo-erro" id="erro-nome"></p>
           </div>
 
           <div class="campo">
@@ -78,7 +76,6 @@
               required
               aria-describedby="erro-email"
             >
-            <p class="campo-erro" id="erro-email"></p>
           </div>
 
           <div class="campo">
@@ -103,8 +100,6 @@
                 aria-pressed="false"
               >Mostrar</button>
             </div>
-
-            <p class="campo-erro" id="erro-senha"></p>
           </div>
 
           <div class="campo">
@@ -112,7 +107,7 @@
 
             <div class="campo-senha">
               <input
-                type="password"
+                type="text"
                 id="senha2"
                 name="senha2"
                 placeholder="Confirme sua senha"
@@ -121,16 +116,7 @@
                 minlength="6"
                 aria-describedby="erro-senha2"
               >
-
-              <button
-                type="button"
-                class="btn-mostrar"
-                aria-controls="senha2"
-                aria-pressed="false"
-              >Mostrar</button>
             </div>
-
-            <p class="campo-erro" id="erro-senha2"></p>
           </div>
 
           <button
@@ -144,8 +130,7 @@
       </div>
 
       <p class="login-rodape">
-        Já possui uma conta?
-        <a class="link" href="login.html">Entrar</a>
+        Já possui uma conta?<a class="link" href="login">Entrar</a>
       </p>
 
     </div>
@@ -160,244 +145,64 @@
   </footer>
 
   <script>
-    "use strict";
+    const formulario = document.getElementById("form-cadastro");
+    const mostraSenha = document.querySelector(".btn-mostrar")
 
-    const form = document.getElementById("form-cadastro");
+    mostraSenha.addEventListener('click', () => {
+      const alternar = document.getElementById("senha");
+      if(alternar.type === "password"){
+        alternar.type = "text";
+        mostraSenha.textContent = "Esconder";
+      } else {
+        alternar.type = "password";
+        mostraSenha.textContent = "Mostrar";
+      }
+    })
 
-    const nome = document.getElementById("nome");
-    const email = document.getElementById("email");
-    const senha = document.getElementById("senha");
-    const senha2 = document.getElementById("senha2");
+    formulario.addEventListener('submit', async (event) => {
+      event.preventDefault();
 
-    const erroNome = document.getElementById("erro-nome");
-    const erroEmail = document.getElementById("erro-email");
-    const erroSenha = document.getElementById("erro-senha");
-    const erroSenha2 = document.getElementById("erro-senha2");
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+      const senha2 = document.getElementById("senha2");
+      const mensagem = document.getElementById("mensagem");
+      const botao = document.getElementById("botao-cadastrar");
 
-    const mensagem = document.getElementById("mensagem");
-    const botao = document.getElementById("botao-cadastrar");
-
-    // Mostrar e ocultar senhas
-    document.querySelectorAll(".btn-mostrar").forEach((alternar) => {
-
-      alternar.addEventListener("click", () => {
-
-        const campo = document.getElementById(
-          alternar.getAttribute("aria-controls")
-        );
-
-        const visivel = campo.type === "text";
-
-        campo.type = visivel ? "password" : "text";
-
-        alternar.textContent = visivel ? "Mostrar" : "Ocultar";
-
-        alternar.setAttribute("aria-pressed", String(!visivel));
-
-      });
-
-    });
-
-    // Função genérica para marcar erros
-    function marcarErro(campo, elementoErro, texto) {
-
-      campo.setAttribute("aria-invalid", texto ? "true" : "false");
-
-      elementoErro.textContent = texto;
-
-      return !texto;
-
-    }
-
-    // Validação do nome
-    function validarNome() {
-
-      const v = nome.value.trim();
-
-      if (!v) {
-        return marcarErro(nome, erroNome, "Digite seu nome.");
+      if(senha2.value !== senha){
+        mensagem.hidden = false
+        mensagem.textContent += "A Senhas não batem, elas são diferentes";
+        senha2.focus()
+        return;
       }
 
-      if (v.length < 2) {
-        return marcarErro(nome, erroNome, "Digite um nome válido.");
-      }
-
-      return marcarErro(nome, erroNome, "");
-
-    }
-
-    // Validação do e-mail
-    function validarEmail() {
-
-      const v = email.value.trim();
-
-      if (!v) {
-        return marcarErro(email, erroEmail, "Digite seu e-mail.");
-      }
-
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-
-        return marcarErro(
-          email,
-          erroEmail,
-          "Digite um e-mail válido."
-        );
-
-      }
-
-      return marcarErro(email, erroEmail, "");
-
-    }
-
-    // Validação da senha
-    function validarSenha() {
-
-      if (!senha.value) {
-        return marcarErro(senha, erroSenha, "Digite sua senha.");
-      }
-
-      if (senha.value.length < 6) {
-
-        return marcarErro(
-          senha,
-          erroSenha,
-          "A senha precisa ter pelo menos 6 caracteres."
-        );
-
-      }
-
-      return marcarErro(senha, erroSenha, "");
-
-    }
-
-    // Validação da confirmação
-    function validarSenha2() {
-
-      if (!senha2.value) {
-
-        return marcarErro(
-          senha2,
-          erroSenha2,
-          "Confirme sua senha."
-        );
-
-      }
-
-      if (senha.value !== senha2.value) {
-
-        return marcarErro(
-          senha2,
-          erroSenha2,
-          "As senhas precisam ser iguais."
-        );
-
-      }
-
-      return marcarErro(senha2, erroSenha2, "");
-
-    }
-
-    // Eventos de validação
-    nome.addEventListener("blur", validarNome);
-    email.addEventListener("blur", validarEmail);
-    senha.addEventListener("blur", validarSenha);
-    senha2.addEventListener("blur", validarSenha2);
-
-    senha.addEventListener("input", () => {
-
-      if (senha2.value) {
-        validarSenha2();
-      }
-
-    });
-
-    function mostrarMensagem(texto, tipo) {
-
-      mensagem.textContent = texto;
-
-      mensagem.className = "login-mensagem " + tipo;
-
-      mensagem.hidden = false;
-
-    }
-
-    // Envio do cadastro
-    form.addEventListener("submit", async (e) => {
-
-      e.preventDefault();
-
-      mensagem.hidden = true;
-
-      const okNome = validarNome();
-      const okEmail = validarEmail();
-      const okSenha = validarSenha();
-      const okSenha2 = validarSenha2();
-
-      if (!okNome) return nome.focus();
-      if (!okEmail) return email.focus();
-      if (!okSenha) return senha.focus();
-      if (!okSenha2) return senha2.focus();
-
-      botao.disabled = true;
-      botao.textContent = "Cadastrando...";
+      botao.disabled = true
 
       try {
+        mensagem.textContent = ''
 
-        const resp = await fetch("/api/usuarios/cadastrar", {
-
+        const resposta = await fetch("/api/cadastro", {
           method: "POST",
-
           headers: {
-            "Content-Type": "application/json"
+            "Content-type": "application/json",
           },
-
-          body: JSON.stringify({
-
-            nome: nome.value.trim(),
-            email: email.value.trim(),
-            senha: senha.value
-
-          })
-
+          body: JSON.stringify({ nome, email, senha })
         });
 
-        const dados = await resp.json();
+        const dados = await resposta.json()
 
-        if (!resp.ok) {
-
-          throw new Error(
-            dados.mensagem || "Não foi possível realizar o cadastro."
-          );
-
+        if(!resposta.ok){
+          mensagem.hidden = false
+          mensagem.textContent = dados.erro || "Erro ao cadastra, Tente mais tarde";
+          botao.disabled = false
+          return;
         }
-
-        mostrarMensagem(
-          "Cadastro realizado com sucesso! Redirecionando...",
-          "sucesso"
-        );
-
-        setTimeout(() => {
-
-          window.location.href = "login.html";
-
-        }, 1200);
-
+        window.location.href = "/aula.html"
       } catch (erro) {
-
-        mostrarMensagem(
-          erro.message || "Erro ao conectar com o servidor.",
-          "erro"
-        );
-
-        botao.disabled = false;
-        botao.textContent = "Cadastrar";
-
+        mensagem.textContent = erro.message
+        botao.disabled = false
       }
-
-    });
-
+    })
   </script>
-
 </body>
 </html>
-```

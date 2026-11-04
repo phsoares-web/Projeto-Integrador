@@ -8,7 +8,7 @@ const app = express();
 const publicDirectory = path.resolve(process.cwd(), "public");
 
 app.set('view engine', 'ejs');
-app.set('views', path.resolve(process.cwd(), "views")); 
+app.set('views', path.resolve(process.cwd(), "src/views")); 
 
 app.use(express.json({ limit: "1mb" }));
 app.use("/api", textRouter);
