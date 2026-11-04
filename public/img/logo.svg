@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Senac Transcreve">
+  <rect width="120" height="120" rx="26" fill="#0a256b"/>
+  <path d="M104 18C92 12 76 9 60 10 34 11 15 22 15 40c0 17 16 24 36 30l18 5c10 3 14 6 14 11 0 8-12 12-28 12-14 0-31-4-41-9L5 108c14 6 32 9 50 9 33 0 52-12 52-32 0-15-12-24-34-30l-16-5c-11-3-15-6-15-10 0-6 9-9 21-9 12 0 26 3 34 7Z" fill="#ff7a00"/>
+  <g transform="rotate(14 62 52)">
+    <rect x="45" y="18" width="34" height="52" rx="17" fill="#fff"/>
+    <g stroke="#ff7a00" stroke-width="4" stroke-linecap="round">
+      <path d="M55 30h14M52 39h20M52 48h20M52 57h20"/>
+    </g>
+    <rect x="58" y="70" width="8" height="40" rx="3" fill="#fff"/>
+  </g>
+</svg>

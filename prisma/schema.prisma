@@ -27,6 +27,7 @@ model Usuario {
   anotacoes              Anotacao[]            @relation("AutorAnotacoes")
   termosCriados          TermoPersonalizado[]  @relation("TermosCriados")
   historicoAcessos       HistoricoAcesso[]     @relation("AlunoHistorico")
+  textos                 Text[]                @relation("UsuarioTextos")
 }
 
 model Disciplina {
@@ -118,8 +119,8 @@ model HistoricoAcesso {
   @@index([transcricaoId, acessadoEm])
 }
 
-// Modelo legado: mantido para que os endpoints atuais em /api/texto continuem
-// compilando. Pode ser removido quando esses endpoints forem migrados para Transcricao.
+// Transcrições salvas pelos usuários na página de transcrição (/api/texto).
+// prof_id guarda o id do usuário dono da transcrição (aluno ou professor).
 model Text {
   id      Int       @id @default(autoincrement())
   prof_id Int?
@@ -127,4 +128,20 @@ model Text {
   texto   String    @db.LongText
   data    DateTime? @db.Date
   materia String?   @db.VarChar(100)
+
+  usuario Usuario? @relation("UsuarioTextos", fields: [prof_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  resumo  Resumo?
+
+  @@index([prof_id])
+}
+
+// Resumo de uma aula (Text). Cada aula tem no máximo um resumo.
+model Resumo {
+  id           Int      @id @default(autoincrement())
+  textoId      Int      @unique
+  conteudo     String   @db.LongText
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  texto Text @relation(fields: [textoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

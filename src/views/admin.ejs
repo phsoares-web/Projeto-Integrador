@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <%- include("partials/head", { titulo: "Painel do administrador", descricao: "Gerencie usuários e aulas do Senac Transcreve." }) %>
+  <script src="/admin.js" defer></script>
+</head>
+<body>
+  <%- include("partials/header", { pagina: "admin" }) %>
+
+  <main id="conteudo" class="secao">
+    <div class="container">
+
+      <div class="pagina-topo">
+        <div>
+          <span class="eyebrow">Administração</span>
+          <h1 class="titulo-pagina">Painel do administrador</h1>
+          <p class="subtitulo">Acompanhe o uso do sistema e gerencie contas e aulas.</p>
+        </div>
+      </div>
+
+      <p id="painel-mensagem" class="mensagem" role="alert" hidden></p>
+
+      <section class="estatisticas" aria-label="Números do sistema">
+        <div class="estatistica"><span class="estatistica-valor" data-stat="usuarios">–</span><span class="estatistica-rotulo">Usuários</span></div>
+        <div class="estatistica"><span class="estatistica-valor" data-stat="alunos">–</span><span class="estatistica-rotulo">Alunos</span></div>
+        <div class="estatistica"><span class="estatistica-valor" data-stat="professores">–</span><span class="estatistica-rotulo">Professores</span></div>
+        <div class="estatistica"><span class="estatistica-valor" data-stat="aulas">–</span><span class="estatistica-rotulo">Aulas salvas</span></div>
+        <div class="estatistica"><span class="estatistica-valor" data-stat="resumos">–</span><span class="estatistica-rotulo">Resumos</span></div>
+      </section>
+
+      <div class="abas" role="tablist" aria-label="Seções do painel">
+        <button type="button" class="aba" role="tab" id="aba-usuarios" aria-controls="painel-usuarios" aria-selected="true">Usuários</button>
+        <button type="button" class="aba" role="tab" id="aba-aulas" aria-controls="painel-aulas" aria-selected="false" tabindex="-1">Aulas</button>
+      </div>
+
+      <section id="painel-usuarios" class="cartao" role="tabpanel" aria-labelledby="aba-usuarios">
+        <div class="tabela-topo">
+          <label class="visualmente-oculto" for="busca-usuarios">Buscar usuário</label>
+          <input id="busca-usuarios" class="busca" type="search" placeholder="Buscar por nome ou e-mail">
+          <label class="visualmente-oculto" for="filtro-tipo">Filtrar por tipo</label>
+          <select id="filtro-tipo" class="filtro">
+            <option value="">Todos os tipos</option>
+            <option value="ALUNO">Alunos</option>
+            <option value="PROFESSOR">Professores</option>
+            <option value="ADMIN">Administradores</option>
+          </select>
+        </div>
+        <div class="tabela-rolagem">
+          <table class="tabela">
+            <thead>
+              <tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Aulas</th><th>Cadastro</th><th><span class="visualmente-oculto">Ações</span></th></tr>
+            </thead>
+            <tbody id="tabela-usuarios"><tr><td colspan="6" class="aviso">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="painel-aulas" class="cartao" role="tabpanel" aria-labelledby="aba-aulas" hidden>
+        <div class="tabela-topo">
+          <label class="visualmente-oculto" for="busca-aulas">Buscar aula</label>
+          <input id="busca-aulas" class="busca" type="search" placeholder="Buscar por título, matéria ou autor">
+        </div>
+        <div class="tabela-rolagem">
+          <table class="tabela">
+            <thead>
+              <tr><th>Título</th><th>Matéria</th><th>Autor</th><th>Data</th><th>Resumo</th><th><span class="visualmente-oculto">Ações</span></th></tr>
+            </thead>
+            <tbody id="tabela-aulas"><tr><td colspan="6" class="aviso">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <%- include("partials/footer") %>
+  <script>window.ADMIN_ID = <%= usuario.id %>;</script>
+</body>
+</html>

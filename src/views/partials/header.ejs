@@ -1,0 +1,32 @@
+<%
+  const atual = (nome) => pagina === nome ? 'aria-current="page"' : '';
+  const ehAdmin = usuario && usuario.tipo === 'ADMIN';
+%>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="cabecalho">
+  <div class="container cabecalho-conteudo">
+    <a class="logo" href="<%= ehAdmin ? '/admin' : '/' %>" aria-label="Senac Transcreve, início">
+      <img class="logo-imagem" src="/img/logo.png" alt="" width="40" height="40"
+        onerror="this.onerror=null;this.src='/img/logo.svg'">
+      <span>Senac <strong>Transcreve</strong></span>
+    </a>
+
+    <nav class="menu" aria-label="Navegação principal">
+      <% if (!usuario) { %>
+        <a href="/" <%- atual('inicio') %>>Transcrever</a>
+        <a href="/login" <%- atual('login') %>>Entrar</a>
+        <a class="menu-destaque" href="/cadastro" <%- atual('cadastro') %>>Criar conta</a>
+      <% } else if (ehAdmin) { %>
+        <a href="/admin" <%- atual('admin') %>>Painel</a>
+        <span class="menu-nome">Olá, <%= usuario.nome.split(' ')[0] %> <span class="selo selo-admin">Admin</span></span>
+        <button type="button" class="menu-sair" data-sair>Sair</button>
+      <% } else { %>
+        <a href="/" <%- atual('inicio') %>>Transcrever</a>
+        <a href="/minhas-aulas" <%- atual('aulas') %>>Minhas aulas</a>
+        <span class="menu-nome">Olá, <%= usuario.nome.split(' ')[0] %></span>
+        <button type="button" class="menu-sair" data-sair>Sair</button>
+      <% } %>
+    </nav>
+  </div>
+</header>

@@ -1,55 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <meta name="description" content="Entre no Senac Transcreve para acessar a transcrição de voz em tempo real.">
-
-  <meta name="theme-color" content="#ff7824">
-
-  <title>Entrar | Senac Transcreve</title>
-
-  <link rel="icon" type="image/png" href="/img/logo.png">
-  <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="/login.css">
+  <%- include("partials/head", { titulo: "Entrar", descricao: "Entre no Senac Transcreve para salvar e consultar suas transcrições." }) %>
 </head>
-
 <body>
+  <%- include("partials/header", { pagina: "login" }) %>
 
-  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <main id="conteudo" class="secao">
+    <div class="container container-form">
 
-  <header class="cabecalho">
-    <div class="container cabecalho-conteudo">
-
-      <a class="logo" href="index.html" aria-label="Senac Transcreve, início">
-        <img class="logo-imagem" src="img/logo.png" alt="Ícone Senac Transcreve">
-        <span>Transcreve</span>
-      </a>
-
-      <nav class="menu" aria-label="Navegação principal">
-        <a href="index.html">Início</a>
-        <a href="aula.html">Aula</a>
-        <a href="login.html" aria-current="page">Entrar</a>
-      </nav>
-
-    </div>
-  </header>
-
-  <main id="conteudo" class="secao-login">
-
-    <div class="container login-container">
-
-      <div class="login-titulo">
+      <div class="form-titulo">
         <h1>Entrar na sua conta</h1>
         <p>Use seu e-mail e senha para acessar as aulas.</p>
       </div>
 
-      <div class="card-login">
+      <div class="cartao cartao-form">
         <form id="form-login" novalidate>
-
-          <p id="mensagem" class="login-mensagem" role="alert" hidden></p>
+          <p id="mensagem" class="mensagem" role="alert" hidden></p>
 
           <div class="campo">
             <label for="email">E-mail</label>
@@ -62,93 +29,50 @@
             <label for="senha">Senha</label>
             <div class="campo-senha">
               <input type="password" id="senha" name="senha" placeholder="Digite sua senha"
-                autocomplete="current-password" required minlength="6" aria-describedby="erro-senha">
-              <button type="button" class="btn-mostrar" id="alternar-senha"
-                aria-controls="senha" aria-pressed="false">Mostrar</button>
+                autocomplete="current-password" required aria-describedby="erro-senha">
+              <button type="button" class="btn-mostrar" data-alternar="senha" aria-pressed="false">Mostrar</button>
             </div>
             <p class="campo-erro" id="erro-senha"></p>
           </div>
 
-          <div class="login-opcoes">
-            <label class="lembrar">
-              <input type="checkbox" id="lembrar" name="lembrar">
-              Manter conectado
-            </label>
-          </div>
+          <label class="lembrar">
+            <input type="checkbox" id="lembrar" name="lembrar">
+            Manter conectado
+          </label>
 
           <button type="submit" class="btn btn-principal btn-largo" id="botao-entrar">Entrar</button>
-
         </form>
       </div>
 
-      <p class="login-rodape">
-        Não possui uma conta?<a class="link" href="cadastro"> cadastrar conta</a>
-      </p>
-      <p class="login-rodape">
-        Quer só testar? <a class="link" href="aula.html">Ir direto para a aula</a>
-      </p>
-
+      <p class="form-rodape">Não possui uma conta? <a class="link" href="/cadastro">Criar conta</a></p>
+      <p class="form-rodape">Quer só testar? <a class="link" href="/">Transcrever sem entrar</a></p>
     </div>
-
   </main>
 
-  <footer>
-    <div class="container rodape-conteudo">
-      <strong>Senac Transcreve</strong>
-      <p>Educação acessível para todos.</p>
-    </div>
-  </footer>
-
+  <%- include("partials/footer") %>
+  <script src="/formulario.js"></script>
   <script>
     const form = document.getElementById("form-login");
     const email = document.getElementById("email");
     const senha = document.getElementById("senha");
-    const erroEmail = document.getElementById("erro-email");
-    const erroSenha = document.getElementById("erro-senha");
-    const mensagem = document.getElementById("mensagem");
     const botao = document.getElementById("botao-entrar");
-    const alternar = document.getElementById("alternar-senha");
+    const { marcarErro, mostrarMensagem, esconderMensagem } = window.Formulario;
+    const voltar = <%- JSON.stringify(voltar || "").replace(/</g, "\\u003c") %>;
 
-    alternar.addEventListener("click", () => {
-      const visivel = senha.type === "text";
-      senha.type = visivel ? "password" : "text";
-      alternar.textContent = visivel ? "Mostrar" : "Ocultar";
-      alternar.setAttribute("aria-pressed", String(!visivel));
-    });
-
-    function marcarErro(campo, elementoErro, texto) {
-      campo.setAttribute("aria-invalid", texto ? "true" : "false");
-      elementoErro.textContent = texto;
-      return !texto;
-    }
-
-    function validarEmail() {
+    const validarEmail = () => {
       const v = email.value.trim();
-      if (!v) return marcarErro(email, erroEmail, "Digite seu e-mail.");
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-        return marcarErro(email, erroEmail, "Digite um e-mail válido, como nome@exemplo.com.");
-      }
-      return marcarErro(email, erroEmail, "");
-    }
-
-    function validarSenha() {
-      if (!senha.value) return marcarErro(senha, erroSenha, "Digite sua senha.");
-      if (senha.value.length < 6) return marcarErro(senha, erroSenha, "A senha tem pelo menos 6 caracteres.");
-      return marcarErro(senha, erroSenha, "");
-    }
+      if (!v) return marcarErro(email, "Digite seu e-mail.");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return marcarErro(email, "Digite um e-mail válido, como nome@exemplo.com.");
+      return marcarErro(email, "");
+    };
+    const validarSenha = () => marcarErro(senha, senha.value ? "" : "Digite sua senha.");
 
     email.addEventListener("blur", validarEmail);
     senha.addEventListener("blur", validarSenha);
 
-    function mostrarMensagem(texto, tipo) {
-      mensagem.textContent = texto;
-      mensagem.className = "login-mensagem " + tipo;
-      mensagem.hidden = false;
-    }
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      mensagem.hidden = true;
+      esconderMensagem();
 
       const okEmail = validarEmail();
       const okSenha = validarSenha();
@@ -159,23 +83,24 @@
       botao.textContent = "Entrando...";
 
       try {
-        const resp = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: email.value.trim(), senha: senha.value })
+        const { usuario, destino } = await App.api("/api/login", {
+          metodo: "POST",
+          corpo: {
+            email: email.value.trim(),
+            senha: senha.value,
+            lembrar: document.getElementById("lembrar").checked,
+            voltar,
+          },
         });
-        if (!resp.ok) throw new Error("credenciais");
-        await new Promise((r) => setTimeout(r, 800));
-
-        mostrarMensagem("Login feito com sucesso. Abrindo a aula...", "sucesso");
-        setTimeout(() => { window.location.href = "aula.html"; }, 600);
+        const area = usuario.tipo === "ADMIN" ? "o painel de administração" : "a sua área";
+        mostrarMensagem(`Bem-vindo(a), ${usuario.nome.split(" ")[0]}! Abrindo ${area}...`, "sucesso");
+        setTimeout(() => { window.location.href = destino; }, 500);
       } catch (erro) {
-        mostrarMensagem("E-mail ou senha incorretos. Confira os dados e tente de novo.", "erro");
+        mostrarMensagem(erro.message, "erro");
         botao.disabled = false;
         botao.textContent = "Entrar";
       }
     });
   </script>
 </body>
-
 </html>
