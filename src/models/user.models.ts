@@ -65,7 +65,7 @@ export class User {
         
         const novoEmail = email.trim()
         const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-        if(regex.test(novoEmail)) throw new Error("E-mail Inválido")
+        if(!regex.test(novoEmail)) throw new Error("E-mail Inválido")
         
         return novoEmail
     }
@@ -74,7 +74,7 @@ export class User {
 
         const novoSenha = senha.trim()
         if(novoSenha.length > 20) throw new Error("Senha muito longa, limite até 20")
-        if(novoSenha.length <= 6) throw new Error("Senha muito curta, mínimo 6")
+        if(novoSenha.length < 6) throw new Error("Senha muito curta, mínimo 6")
         if(/[^A-Za-z0-9]/g.test(novoSenha)) throw new Error("Senha inapropriada, somente um ou nenhum caractér especial")
         
         return novoSenha

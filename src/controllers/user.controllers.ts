@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserRepositories } from "../repositories/user.repositories";
 import { User } from "../models/user.models";
 import { cadastrar as bCadastro, login as bLogin } from "../middlewares/bcrypt";
+import { TipoUsuario } from "../../generated/prisma/enums";
 
 const repo = new UserRepositories()
 
@@ -13,10 +14,11 @@ export class UserControllers{
             const emailUnico = await repo.findByEmail(email)
             if(emailUnico)
                 return res.status(409).json({ erro : "Conta já existente" })
+
+            const dados = User.toDataBase(nome, email, senha, tipo ?? TipoUsuario.ALUNO)
             const senhaHash = await bCadastro(senha)
 
-            const dados = User.toDataBase(nome, email, senhaHash, tipo ?? null)
-            const userSalvo = await repo.create(dados.nome, dados.email, dados.senha, dados.tipo)
+            const userSalvo = await repo.create(dados.nome, dados.email, senhaHash, dados.tipo)
 
             return res.status(201).json(userSalvo)
         } catch(erro) {
