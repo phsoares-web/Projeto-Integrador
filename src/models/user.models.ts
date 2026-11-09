@@ -1,3 +1,9 @@
+export enum TipoUsuario {
+    ALUNO = "ALUNO",
+    PROFESSOR = "PROFESSOR",
+    ADMIN = "ADMIN"
+}
+
 export interface UserRawSQL {
     id: number,
     nome: string,
@@ -5,92 +11,69 @@ export interface UserRawSQL {
     senha: string,
     tipo: TipoUsuario,
     criadoEm: Date
-    
 }
-export enum TipoUsuario {
-    ALUNO = "ALUNO",
-    PROFESSOR ="PROFESSOR",
-    ADMIN = "ADMIN"
-}
+
+/** Dados do usuário que podem ser enviados ao cliente (sem o hash da senha). */
+export type UsuarioPublico = Omit<UserRawSQL, "senha">
+
+// Tipos que qualquer pessoa pode escolher no cadastro público. ADMIN não entra aqui.
+const TIPOS_CADASTRO_PUBLICO: readonly TipoUsuario[] = [TipoUsuario.ALUNO, TipoUsuario.PROFESSOR]
 
 export class User {
-    public readonly id : number;
-    private _nome : string;
-    private _email : string;
-    private _senha : string;
-    private _tipo : TipoUsuario;
-
-    constructor(
-        id : number,
-        nome : string,
-        email : string,
-        senha : string,
-        tipo : TipoUsuario
-    ) {
-        this.id = User.validarId(id);
-        this._nome = User.validarNome(nome);
-        this._email = User.validarEmail(email);
-        this._senha = User.validarSenha(senha);
-        this._tipo = tipo;
-    }
-
-    get nome(): string { return this._nome }
-    get email(): string { return this._email }
-    get senha(): string { return this._senha }
-    get tipo(): TipoUsuario { return this._tipo }
-
-    set nome(newNome: string) { this._nome = User.validarNome(newNome) }
-    set email(newEmail: string) { this._email = User.validarEmail(newEmail)}
-    set senha(newSenha: string) { this._senha = User.validarSenha(newSenha) }
-
-    private static validarId(id: number): number {
-        const erros: string[] = []
-        if(isNaN(id)) erros.push("Não é um Número")
-        if(!Number.isInteger(id)) erros.push("Não é inteiro")
-        if(id <= 0) erros.push("Não é positivo")
-        if(erros.length > 0) throw new Error("O id é inválido pois: " + erros.join(", "))
-
+    public static validarId(id: number): number {
+        if (!Number.isInteger(id) || id <= 0) throw new Error("O id deve ser um número inteiro positivo.")
         return id
     }
-    private static validarNome(nome: string): string {
-        if(!nome || typeof nome !== "string") throw new Error("Nome é obtigatório")
 
-        const novoNome = nome.trim()
-        if(novoNome.length > 75) throw new Error("Nome muito longo, limite de até 75")
-
+    public static validarNome(nome: unknown): string {
+        if (typeof nome !== "string" || !nome.trim()) throw new Error("O nome é obrigatório.")
+        const novoNome = nome.trim().replace(/\s+/g, " ")
+        if (novoNome.length < 2) throw new Error("O nome deve ter pelo menos 2 caracteres.")
+        if (novoNome.length > 120) throw new Error("O nome pode ter no máximo 120 caracteres.")
         return novoNome
     }
-    private static validarEmail(email: string): string {
-        if(!email || typeof email !== "string") throw new Error("Email é obrigatório")
-        
-        const novoEmail = email.trim()
-        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-        if(regex.test(novoEmail)) throw new Error("E-mail Inválido")
-        
+
+    public static validarEmail(email: unknown): string {
+        if (typeof email !== "string" || !email.trim()) throw new Error("O e-mail é obrigatório.")
+        const novoEmail = email.trim().toLowerCase()
+        const regex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/
+        if (novoEmail.length > 191 || !regex.test(novoEmail)) throw new Error("E-mail inválido.")
         return novoEmail
     }
-    private static validarSenha(senha: string): string {
-        if(!senha || typeof senha !== "string") throw new Error("Senha é obtigatório")
 
-        const novoSenha = senha.trim()
-        if(novoSenha.length > 20) throw new Error("Senha muito longa, limite até 20")
-        if(novoSenha.length <= 6) throw new Error("Senha muito curta, mínimo 6")
-        if(/[^A-Za-z0-9]/g.test(novoSenha)) throw new Error("Senha inapropriada, somente um ou nenhum caractér especial")
-        
-        return novoSenha
+    public static validarSenha(senha: unknown): string {
+        if (typeof senha !== "string" || !senha) throw new Error("A senha é obrigatória.")
+        if (senha.length < 6) throw new Error("A senha deve ter pelo menos 6 caracteres.")
+        // O bcrypt só considera os primeiros 72 bytes da senha.
+        if (Buffer.byteLength(senha, "utf8") > 72) throw new Error("A senha pode ter no máximo 72 caracteres.")
+        if (/\s/.test(senha)) throw new Error("A senha não pode conter espaços.")
+        return senha
+    }
+
+    public static validarTipoCadastro(tipo: unknown): TipoUsuario {
+        if (tipo === undefined || tipo === null || tipo === "") return TipoUsuario.ALUNO
+        if (!TIPOS_CADASTRO_PUBLICO.includes(tipo as TipoUsuario)) {
+            throw new Error("Tipo de usuário inválido. Use ALUNO ou PROFESSOR.")
+        }
+        return tipo as TipoUsuario
     }
 
     public static toDataBase(
-        nome : string,
-        email : string,
-        senha : string,
-        tipo : TipoUsuario = TipoUsuario.ALUNO
+        nome: unknown,
+        email: unknown,
+        senha: unknown,
+        tipo: unknown
     ): Omit<UserRawSQL, "id" | "criadoEm"> {
         return {
-            nome : User.validarNome(nome),
-            email : User.validarEmail(email),
-            senha : User.validarSenha(senha),
-            tipo
+            nome: User.validarNome(nome),
+            email: User.validarEmail(email),
+            senha: User.validarSenha(senha),
+            tipo: User.validarTipoCadastro(tipo)
         }
+    }
+
+    public static toPublic(usuario: UserRawSQL): UsuarioPublico {
+        const { senha: _senha, ...publico } = usuario
+        return publico
     }
 }

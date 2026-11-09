@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <%- include("partials/head", { titulo: "Criar conta", descricao: "Cadastre-se no Senac Transcreve para salvar e consultar suas transcrições." }) %>
+</head>
+<body>
+  <%- include("partials/header", { pagina: "cadastro" }) %>
+
+  <main id="conteudo" class="secao">
+    <div class="container container-form">
+
+      <div class="form-titulo">
+        <h1>Criar sua conta</h1>
+        <p>Preencha seus dados para acessar as aulas.</p>
+      </div>
+
+      <div class="cartao cartao-form">
+        <form id="form-cadastro" novalidate>
+          <p id="mensagem" class="mensagem" role="alert" hidden></p>
+
+          <div class="campo">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" placeholder="Pedro Guilherme" maxlength="120"
+              autocomplete="name" required aria-describedby="erro-nome">
+            <p class="campo-erro" id="erro-nome"></p>
+          </div>
+
+          <div class="campo">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" placeholder="voce@exemplo.com"
+              autocomplete="email" required aria-describedby="erro-email">
+            <p class="campo-erro" id="erro-email"></p>
+          </div>
+
+          <fieldset class="campo campo-tipo">
+            <legend>Eu sou</legend>
+            <label class="opcao"><input type="radio" name="tipo" value="ALUNO" checked> Aluno</label>
+            <label class="opcao"><input type="radio" name="tipo" value="PROFESSOR"> Professor</label>
+          </fieldset>
+
+          <div class="campo">
+            <label for="senha">Senha</label>
+            <div class="campo-senha">
+              <input type="password" id="senha" name="senha" placeholder="Mínimo de 6 caracteres"
+                autocomplete="new-password" required minlength="6" aria-describedby="erro-senha">
+              <button type="button" class="btn-mostrar" data-alternar="senha" aria-pressed="false">Mostrar</button>
+            </div>
+            <p class="campo-erro" id="erro-senha"></p>
+          </div>
+
+          <div class="campo">
+            <label for="senha2">Confirme sua senha</label>
+            <div class="campo-senha">
+              <input type="password" id="senha2" name="senha2" placeholder="Repita a senha"
+                autocomplete="new-password" required aria-describedby="erro-senha2">
+              <button type="button" class="btn-mostrar" data-alternar="senha2" aria-pressed="false">Mostrar</button>
+            </div>
+            <p class="campo-erro" id="erro-senha2"></p>
+          </div>
+
+          <button type="submit" class="btn btn-principal btn-largo" id="botao-cadastrar">Cadastrar</button>
+        </form>
+      </div>
+
+      <p class="form-rodape">Já possui uma conta? <a class="link" href="/login">Entrar</a></p>
+    </div>
+  </main>
+
+  <%- include("partials/footer") %>
+  <script src="/formulario.js"></script>
+  <script>
+    const form = document.getElementById("form-cadastro");
+    const nome = document.getElementById("nome");
+    const email = document.getElementById("email");
+    const senha = document.getElementById("senha");
+    const senha2 = document.getElementById("senha2");
+    const botao = document.getElementById("botao-cadastrar");
+    const { marcarErro, mostrarMensagem, esconderMensagem } = window.Formulario;
+
+    const validarNome = () => marcarErro(nome, nome.value.trim().length >= 2 ? "" : "Digite seu nome.");
+    const validarEmail = () => {
+      const v = email.value.trim();
+      if (!v) return marcarErro(email, "Digite seu e-mail.");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return marcarErro(email, "Digite um e-mail válido, como nome@exemplo.com.");
+      return marcarErro(email, "");
+    };
+    const validarSenha = () => {
+      if (senha.value.length < 6) return marcarErro(senha, "A senha deve ter pelo menos 6 caracteres.");
+      if (/\s/.test(senha.value)) return marcarErro(senha, "A senha não pode conter espaços.");
+      return marcarErro(senha, "");
+    };
+    const validarSenha2 = () => marcarErro(senha2, senha2.value === senha.value ? "" : "As senhas não são iguais.");
+
+    nome.addEventListener("blur", validarNome);
+    email.addEventListener("blur", validarEmail);
+    senha.addEventListener("blur", validarSenha);
+    senha2.addEventListener("blur", validarSenha2);
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      esconderMensagem();
+
+      const campos = [[nome, validarNome], [email, validarEmail], [senha, validarSenha], [senha2, validarSenha2]];
+      const invalido = campos.map(([campo, validar]) => (validar() ? null : campo)).find(Boolean);
+      if (invalido) return invalido.focus();
+
+      botao.disabled = true;
+      botao.textContent = "Cadastrando...";
+
+      try {
+        const tipo = form.querySelector('input[name="tipo"]:checked').value;
+        const dados = { nome: nome.value.trim(), email: email.value.trim(), senha: senha.value, tipo };
+        // O servidor já deixa a pessoa logada com a conta recém-criada.
+        const { destino } = await App.api("/api/cadastro", { metodo: "POST", corpo: dados });
+        mostrarMensagem("Conta criada! Abrindo a sua área...", "sucesso");
+        setTimeout(() => { window.location.href = destino; }, 500);
+      } catch (erro) {
+        mostrarMensagem(erro.message, "erro");
+        botao.disabled = false;
+        botao.textContent = "Cadastrar";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <%- include("partials/head", { titulo: "Transcrição de aulas em tempo real", descricao: "O Senac Transcreve transforma a fala da aula em texto em tempo real, para que ninguém fique de fora." }) %>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <%- include("partials/header", { pagina: "inicio" }) %>
+
+  <main id="conteudo">
+    <section class="hero">
+      <div class="container hero-grade">
+
+        <!-- Esquerda: o que o site faz -->
+        <div class="hero-texto">
+          <!-- A imagem substitui o título. O texto continua na página (oculto) para leitores de tela
+               e buscadores; se a imagem não carregar, o título volta a aparecer. -->
+          <div class="hero-titulo com-imagem" id="hero-titulo">
+            <img class="hero-imagem" src="/img/hero.png" width="1672" height="941"
+              alt="" aria-hidden="true"
+              onerror="document.getElementById('hero-titulo').classList.remove('com-imagem')">
+            <span class="eyebrow">Acessibilidade em sala de aula</span>
+            <h1>Toda aula em texto, <span class="destaque">para ninguém ficar de fora.</span></h1>
+          </div>
+          <p class="hero-lead">
+            O <strong>Senac Transcreve</strong> transforma a fala do professor em texto
+            <strong>em tempo real</strong>. Alunos surdos ou com deficiência auditiva acompanham a
+            aula lendo, e todo mundo pode salvar o conteúdo e revisar depois com um resumo pronto.
+          </p>
+
+          <ol class="passos">
+            <li>
+              <span class="passo-icone" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11v1a7 7 0 0 1-14 0v-1m7 8v3m-4 0h8"/></svg>
+              </span>
+              <div><strong>O professor dá a aula normalmente</strong><span>Toque em “Iniciar transcrição” e o microfone passa a captar a fala do professor.</span></div>
+            </li>
+            <li>
+              <span class="passo-icone" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>
+              </span>
+              <div><strong>A turma lê em tempo real</strong><span>Cada palavra do professor aparece na tela enquanto é dita.</span></div>
+            </li>
+            <li>
+              <span class="passo-icone" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>
+              </span>
+              <div><strong>Salve e resuma</strong><span>Guarde a aula na sua conta e gere um resumo dos pontos principais.</span></div>
+            </li>
+          </ol>
+
+          <div class="hero-acoes">
+            <% if (!usuario) { %>
+              <a class="btn btn-secundario" href="/cadastro">Criar conta grátis</a>
+              <a class="link" href="/login">Já tenho conta</a>
+            <% } else if (usuario.tipo === 'ADMIN') { %>
+              <a class="btn btn-secundario" href="/admin">Abrir painel</a>
+            <% } else { %>
+              <a class="btn btn-secundario" href="/minhas-aulas">Ver minhas aulas</a>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Direita: transcrição -->
+        <div class="hero-ferramenta">
+          <section class="cartao gravador" aria-labelledby="titulo-gravador">
+            <div class="gravador-topo">
+              <div>
+                <h2 id="titulo-gravador" class="rotulo">Área de transcrição</h2>
+                <p id="status" class="status" role="status" aria-live="polite">Pronto para transcrever</p>
+              </div>
+              <span id="recording-indicator" class="indicador" aria-hidden="true">
+                <span class="indicador-ponto"></span> AO VIVO
+              </span>
+            </div>
+
+            <!-- Guia visual para quem não ouve se o microfone está captando -->
+            <details id="guia" class="guia" open>
+              <summary>
+                <span class="guia-icone" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/><path d="M12 16v-4M12 8h.01"/></svg>
+                </span>
+                Como começar a transcrever a aula
+              </summary>
+              <ol class="guia-passos">
+                <li><span class="guia-num">1</span><div><strong>Coloque o aparelho perto do professor</strong>, na mesa da frente ou o mais próximo possível de quem fala.</div></li>
+                <li><span class="guia-num">2</span><div><strong>Toque em “Iniciar transcrição”</strong> e, se o navegador perguntar, toque em <strong>Permitir</strong> para liberar o microfone.</div></li>
+                <li><span class="guia-num">3</span><div><strong>Confira o medidor de som:</strong> quando o professor fala, as barras laranja se mexem. Se ficarem paradas, aproxime o aparelho.</div></li>
+              </ol>
+            </details>
+
+            <div class="painel-som" aria-hidden="false">
+              <div class="medidor" id="medidor" role="meter" aria-label="Nível do som captado" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <span id="medidor-texto" class="medidor-texto">Microfone desligado</span>
+              <div class="tamanho-letra" role="group" aria-label="Tamanho da letra da transcrição">
+                <button type="button" class="btn-letra" data-letra="-1" aria-label="Diminuir letra">A−</button>
+                <button type="button" class="btn-letra" data-letra="1" aria-label="Aumentar letra">A+</button>
+              </div>
+            </div>
+
+            <p id="alerta-silencio" class="alerta-silencio" role="alert" hidden>
+              Não estou captando a fala do professor. Aproxime o aparelho de quem está falando.
+            </p>
+
+            <div id="transcript" class="transcricao" role="region" aria-label="Texto transcrito">
+              <p id="transcript-placeholder" class="placeholder">A fala do professor aparecerá aqui, em tempo real...</p>
+              <p id="final-transcript" class="final-transcript"></p>
+              <p id="interim-transcript" class="interim-transcript"></p>
+            </div>
+
+            <div class="gravador-acoes">
+              <button id="start-button" class="btn btn-principal" type="button">
+                <svg class="icone" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" />
+                  <path d="M19 11v1a7 7 0 0 1-14 0v-1m7 8v3m-4 0h8" />
+                </svg>
+                <span>Iniciar transcrição</span>
+              </button>
+              <button id="clear-button" class="btn btn-fantasma" type="button" disabled>Limpar texto</button>
+            </div>
+            <p class="nota">O microfone só é ligado quando a transcrição é iniciada.</p>
+          </section>
+
+          <section class="cartao salvar" aria-labelledby="titulo-salvar">
+            <h2 id="titulo-salvar" class="cartao-titulo">Salvar aula</h2>
+
+            <% if (!usuario) { %>
+            <p class="aviso">
+              <a class="link" href="/login">Entre na sua conta</a> ou <a class="link" href="/cadastro">crie uma</a>
+              para salvar a aula e gerar um resumo dela depois.
+            </p>
+            <% } else if (usuario.tipo === 'ADMIN') { %>
+            <p class="aviso">Contas de administrador não salvam aulas. Use o <a class="link" href="/admin">painel</a> para gerenciar o sistema.</p>
+            <% } else { %>
+            <form id="form-salvar" class="form-salvar" novalidate>
+              <p id="salvar-mensagem" class="mensagem" role="alert" hidden></p>
+              <div class="campos-linha">
+                <div class="campo">
+                  <label for="titulo">Título</label>
+                  <input id="titulo" name="titulo" type="text" maxlength="75" placeholder="Aula de hoje" required>
+                </div>
+                <div class="campo">
+                  <label for="materia">Matéria <span class="opcional">(opcional)</span></label>
+                  <input id="materia" name="materia" type="text" maxlength="100" placeholder="Português">
+                </div>
+              </div>
+              <div class="form-acoes">
+                <button id="botao-salvar" class="btn btn-secundario" type="submit" disabled>Salvar aula</button>
+                <a class="link" href="/minhas-aulas">Ver minhas aulas</a>
+              </div>
+            </form>
+            <% } %>
+          </section>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Para quem é -->
+    <section class="sobre" aria-labelledby="titulo-sobre">
+      <div class="container sobre-grade">
+        <figure class="sobre-imagem" id="figura-ilustracao">
+          <img src="/img/ilustracao.png" alt="Estudante com aparelho auditivo acompanhando no notebook a transcrição do áudio da aula."
+            loading="lazy" onerror="document.getElementById('figura-ilustracao').hidden = true">
+        </figure>
+        <div class="sobre-texto">
+          <span class="eyebrow">Para quem é</span>
+          <h2 id="titulo-sobre">Feito para incluir quem precisa ler a aula</h2>
+          <ul class="lista-beneficios">
+            <li><strong>Alunos surdos ou com deficiência auditiva</strong> acompanham a explicação pelo texto, no mesmo ritmo da turma.</li>
+            <li><strong>Professores</strong> deixam a aula registrada sem precisar digitar nada.</li>
+            <li><strong>Toda a turma</strong> revisa o conteúdo depois, com a transcrição e um resumo dos pontos principais.</li>
+          </ul>
+          <p class="nota-alinhada">Funciona no Google Chrome e no Microsoft Edge, direto no navegador, sem instalar nada.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include("partials/footer") %>
+</body>
+</html>
