@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <%- include("partials/head", { titulo: "Entrar", descricao: "Entre no Senac Transcreve para salvar e consultar suas transcrições." }) %>
+</head>
+<body>
+  <%- include("partials/header", { pagina: "login" }) %>
+
+  <main id="conteudo" class="secao">
+    <div class="container container-form">
+
+      <div class="form-titulo">
+        <h1>Entrar na sua conta</h1>
+        <p>Use seu e-mail e senha para acessar as aulas.</p>
+      </div>
+
+      <div class="cartao cartao-form">
+        <form id="form-login" novalidate>
+          <p id="mensagem" class="mensagem" role="alert" hidden></p>
+
+          <div class="campo">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" placeholder="voce@exemplo.com"
+              autocomplete="email" required aria-describedby="erro-email">
+            <p class="campo-erro" id="erro-email"></p>
+          </div>
+
+          <div class="campo">
+            <label for="senha">Senha</label>
+            <div class="campo-senha">
+              <input type="password" id="senha" name="senha" placeholder="Digite sua senha"
+                autocomplete="current-password" required aria-describedby="erro-senha">
+              <button type="button" class="btn-mostrar" data-alternar="senha" aria-pressed="false">Mostrar</button>
+            </div>
+            <p class="campo-erro" id="erro-senha"></p>
+          </div>
+
+          <label class="lembrar">
+            <input type="checkbox" id="lembrar" name="lembrar">
+            Manter conectado
+          </label>
+
+          <button type="submit" class="btn btn-principal btn-largo" id="botao-entrar">Entrar</button>
+        </form>
+      </div>
+
+      <p class="form-rodape">Não possui uma conta? <a class="link" href="/cadastro">Criar conta</a></p>
+      <p class="form-rodape">Quer só testar? <a class="link" href="/">Transcrever sem entrar</a></p>
+    </div>
+  </main>
+
+  <%- include("partials/footer") %>
+  <script src="/formulario.js"></script>
+  <script>
+    const form = document.getElementById("form-login");
+    const email = document.getElementById("email");
+    const senha = document.getElementById("senha");
+    const botao = document.getElementById("botao-entrar");
+    const { marcarErro, mostrarMensagem, esconderMensagem } = window.Formulario;
+    const voltar = <%- JSON.stringify(voltar || "").replace(/</g, "\\u003c") %>;
+
+    const validarEmail = () => {
+      const v = email.value.trim();
+      if (!v) return marcarErro(email, "Digite seu e-mail.");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return marcarErro(email, "Digite um e-mail válido, como nome@exemplo.com.");
+      return marcarErro(email, "");
+    };
+    const validarSenha = () => marcarErro(senha, senha.value ? "" : "Digite sua senha.");
+
+    email.addEventListener("blur", validarEmail);
+    senha.addEventListener("blur", validarSenha);
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      esconderMensagem();
+
+      const okEmail = validarEmail();
+      const okSenha = validarSenha();
+      if (!okEmail) return email.focus();
+      if (!okSenha) return senha.focus();
+
+      botao.disabled = true;
+      botao.textContent = "Entrando...";
+
+      try {
+        const { usuario, destino } = await App.api("/api/login", {
+          metodo: "POST",
+          corpo: {
+            email: email.value.trim(),
+            senha: senha.value,
+            lembrar: document.getElementById("lembrar").checked,
+            voltar,
+          },
+        });
+        const area = usuario.tipo === "ADMIN" ? "o painel de administração" : "a sua área";
+        mostrarMensagem(`Bem-vindo(a), ${usuario.nome.split(" ")[0]}! Abrindo ${area}...`, "sucesso");
+        setTimeout(() => { window.location.href = destino; }, 500);
+      } catch (erro) {
+        mostrarMensagem(erro.message, "erro");
+        botao.disabled = false;
+        botao.textContent = "Entrar";
+      }
+    });
+  </script>
+</body>
+</html>

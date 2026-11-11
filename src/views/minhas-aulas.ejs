@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <%- include("partials/head", { titulo: "Minhas aulas", descricao: "Suas aulas transcritas e os resumos de cada uma." }) %>
+  <script src="/minhas-aulas.js" defer></script>
+</head>
+<body data-usuario-id="<%= usuario.id %>" data-usuario-tipo="<%= usuario.tipo %>">
+  <%- include("partials/header", { pagina: "aulas" }) %>
+
+  <main id="conteudo" class="secao">
+    <div class="container">
+
+      <div class="pagina-topo">
+        <div>
+          <span class="eyebrow"><%= usuario.tipo === 'PROFESSOR' ? 'Área do professor' : 'Área do aluno' %></span>
+          <h1 class="titulo-pagina">Minhas aulas</h1>
+          <p class="subtitulo"><%= usuario.tipo === 'ALUNO' ? 'Consulte suas transcrições e as aulas compartilhadas pelos professores das suas disciplinas.' : 'Reveja as transcrições salvas e crie um resumo para cada aula.' %></p>
+        </div>
+        <a class="btn btn-principal" href="/">
+          <svg class="icone" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" />
+            <path d="M19 11v1a7 7 0 0 1-14 0v-1m7 8v3m-4 0h8" />
+          </svg>
+          Transcrever nova aula
+        </a>
+      </div>
+
+      <p id="carregando" class="aviso">Carregando suas aulas...</p>
+
+      <div id="vazio" class="cartao estado-vazio" hidden>
+        <h2 class="cartao-titulo">Você ainda não salvou nenhuma aula</h2>
+        <p class="aviso">Grave uma aula na página de transcrição e clique em “Salvar aula”. Ela vai aparecer aqui para você criar o resumo.</p>
+        <a class="btn btn-principal" href="/">Transcrever minha primeira aula</a>
+      </div>
+
+      <div id="area-aulas" class="aulas-layout" hidden>
+        <aside class="cartao aulas-lista" aria-label="Lista de aulas">
+          <label class="visualmente-oculto" for="busca">Buscar aula</label>
+          <input id="busca" class="busca" type="search" placeholder="Buscar por título ou matéria">
+          <ul id="lista" class="lista-aulas"></ul>
+          <p id="sem-resultado" class="aviso" hidden>Nenhuma aula encontrada.</p>
+        </aside>
+
+        <section id="detalhe" class="aula-detalhe" aria-live="polite">
+          <div class="cartao">
+            <div class="aula-cabecalho">
+              <div>
+                <h2 id="aula-titulo" class="aula-titulo"></h2>
+                <p id="aula-meta" class="aula-meta"></p>
+              </div>
+              <div class="aula-acoes">
+                <button id="copiar-transcricao" type="button" class="btn btn-fantasma btn-pequeno">Copiar transcrição</button>
+                <button id="excluir-aula" type="button" class="btn btn-perigo btn-pequeno">Excluir aula</button>
+              </div>
+            </div>
+            <details class="transcricao-salva" open>
+              <summary>Transcrição da aula</summary>
+              <p id="aula-texto"></p>
+            </details>
+          </div>
+
+          <div class="cartao cartao-resumo">
+            <div class="resumo-topo">
+              <div>
+                <h2 class="cartao-titulo">Resumo da aula</h2>
+                <p id="resumo-status" class="aviso"></p>
+              </div>
+              <button id="gerar-resumo" type="button" class="btn btn-secundario btn-pequeno">
+                <svg class="icone" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" /><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" />
+                </svg>
+                Gerar resumo automático
+              </button>
+            </div>
+
+            <p id="resumo-mensagem" class="mensagem" role="alert" hidden></p>
+            <label class="visualmente-oculto" for="resumo-texto">Texto do resumo</label>
+            <textarea id="resumo-texto" class="resumo-texto" rows="12"
+              placeholder="Escreva aqui os pontos principais da aula, ou clique em “Gerar resumo automático” para começar com uma sugestão e depois ajustar."></textarea>
+            <div class="resumo-rodape">
+              <span id="resumo-contador" class="aviso"></span>
+              <div class="resumo-botoes">
+                <button id="excluir-resumo" type="button" class="btn btn-perigo btn-pequeno" hidden>Excluir resumo</button>
+                <button id="copiar-resumo" type="button" class="btn btn-fantasma btn-pequeno">Copiar</button>
+                <button id="salvar-resumo" type="button" class="btn btn-principal btn-pequeno" disabled>Salvar resumo</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <%- include("partials/footer") %>
+</body>
+</html>

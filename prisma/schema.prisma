@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum TipoUsuario {
+  ALUNO
+  PROFESSOR
+  ADMIN
+}
+
+model Usuario {
+  id       Int         @id @default(autoincrement())
+  nome     String      @db.VarChar(120)
+  email    String      @unique @db.VarChar(191)
+  senha    String      @db.VarChar(255) // Armazenar somente o hash da senha.
+  tipo     TipoUsuario
+  criadoEm DateTime    @default(now())
+
+  disciplinasMinistradas Disciplina[]          @relation("ProfessorDisciplinas")
+  matriculas             MatriculaDisciplina[] @relation("AlunoMatriculas")
+  transcricoes           Transcricao[]         @relation("ProfessorTranscricoes")
+  anotacoes              Anotacao[]            @relation("AutorAnotacoes")
+  termosCriados          TermoPersonalizado[]  @relation("TermosCriados")
+  historicoAcessos       HistoricoAcesso[]     @relation("AlunoHistorico")
+  textos                 Text[]                @relation("UsuarioTextos")
+}
+
+model Disciplina {
+  id          Int     @id @default(autoincrement())
+  nome        String  @db.VarChar(120)
+  descricao   String? @db.Text
+  professorId Int
+
+  professor            Usuario               @relation("ProfessorDisciplinas", fields: [professorId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  matriculas           MatriculaDisciplina[]
+  transcricoes         Transcricao[]
+  textos               Text[]
+  termosPersonalizados TermoPersonalizado[]
+
+  @@index([professorId])
+}
+
+model MatriculaDisciplina {
+  id           Int      @id @default(autoincrement())
+  alunoId      Int
+  disciplinaId Int
+  criadoEm     DateTime @default(now())
+
+  aluno      Usuario    @relation("AlunoMatriculas", fields: [alunoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  disciplina Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([alunoId, disciplinaId])
+  @@index([disciplinaId])
+}
+
+model Transcricao {
+  id           Int      @id @default(autoincrement())
+  titulo       String   @db.VarChar(150)
+  conteudo     String   @db.LongText
+  disciplinaId Int
+  professorId  Int
+  criadoEm     DateTime @default(now())
+
+  disciplina       Disciplina        @relation(fields: [disciplinaId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  professor        Usuario           @relation("ProfessorTranscricoes", fields: [professorId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  anotacoes        Anotacao[]
+  historicoAcessos HistoricoAcesso[]
+
+  @@index([disciplinaId, criadoEm])
+  @@index([professorId, criadoEm])
+}
+
+model Anotacao {
+  id            Int      @id @default(autoincrement())
+  conteudo      String   @db.LongText
+  usuarioId     Int
+  transcricaoId Int
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  usuario     Usuario     @relation("AutorAnotacoes", fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  transcricao Transcricao @relation(fields: [transcricaoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([usuarioId, criadoEm])
+  @@index([transcricaoId])
+}
+
+model TermoPersonalizado {
+  id           Int      @id @default(autoincrement())
+  termo        String   @db.VarChar(150)
+  descricao    String?  @db.Text
+  disciplinaId Int
+  criadoPorId  Int
+  criadoEm     DateTime @default(now())
+
+  disciplina Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  criadoPor  Usuario    @relation("TermosCriados", fields: [criadoPorId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([termo, disciplinaId])
+  @@index([criadoPorId])
+}
+
+// Opcional: remova este model e os campos historicoAcessos das relações
+// Usuario e Transcricao se não for necessário registar consultas dos alunos.
+model HistoricoAcesso {
+  id            Int      @id @default(autoincrement())
+  alunoId       Int
+  transcricaoId Int
+  acessadoEm    DateTime @default(now())
+
+  aluno       Usuario     @relation("AlunoHistorico", fields: [alunoId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  transcricao Transcricao @relation(fields: [transcricaoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([alunoId, acessadoEm])
+  @@index([transcricaoId, acessadoEm])
+}
+
+// Transcrições salvas pelos usuários na página de transcrição (/api/texto).
+// prof_id guarda o id do usuário dono da transcrição (aluno ou professor).
+model Text {
+  id      Int       @id @default(autoincrement())
+  prof_id Int?
+  titulo  String    @db.VarChar(75)
+  texto   String    @db.LongText
+  data    DateTime? @db.Date
+  materia String?   @db.VarChar(100)
+  disciplinaId Int?
+
+  usuario    Usuario?    @relation("UsuarioTextos", fields: [prof_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  disciplina Disciplina? @relation(fields: [disciplinaId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  resumo     Resumo?
+
+  @@index([prof_id])
+  @@index([disciplinaId])
+}
+
+// Resumo de uma aula (Text). Cada aula tem no máximo um resumo.
+model Resumo {
+  id           Int      @id @default(autoincrement())
+  textoId      Int      @unique
+  conteudo     String   @db.LongText
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  texto Text @relation(fields: [textoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
