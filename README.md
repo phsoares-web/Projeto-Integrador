@@ -4,6 +4,14 @@ Aplicação web que transforma a fala do professor em texto **em tempo real**, p
 
 Feito com Node.js + Express 5, páginas EJS, Prisma ORM 7 e MySQL.
 
+### Equipe
+| Intregrantes | Cargos |
+| :-----------: | :-----: |
+| Paulo Henrique | Líder Técnico |
+| Caio Lincoln - Emanuel Guerra | Back-end |
+| João Maria - Jose Victor | Front-end |
+| Rafael Azafe | QA\Testes |
+
 ## Funcionalidades
 
 | Quem | O que pode fazer |
