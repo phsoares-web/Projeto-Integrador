@@ -4,7 +4,7 @@
   <%- include("partials/head", { titulo: "Minhas aulas", descricao: "Suas aulas transcritas e os resumos de cada uma." }) %>
   <script src="/minhas-aulas.js" defer></script>
 </head>
-<body>
+<body data-usuario-id="<%= usuario.id %>" data-usuario-tipo="<%= usuario.tipo %>">
   <%- include("partials/header", { pagina: "aulas" }) %>
 
   <main id="conteudo" class="secao">
@@ -14,7 +14,7 @@
         <div>
           <span class="eyebrow"><%= usuario.tipo === 'PROFESSOR' ? 'Área do professor' : 'Área do aluno' %></span>
           <h1 class="titulo-pagina">Minhas aulas</h1>
-          <p class="subtitulo">Reveja as transcrições salvas e crie um resumo para cada aula.</p>
+          <p class="subtitulo"><%= usuario.tipo === 'ALUNO' ? 'Consulte suas transcrições e as aulas compartilhadas pelos professores das suas disciplinas.' : 'Reveja as transcrições salvas e crie um resumo para cada aula.' %></p>
         </div>
         <a class="btn btn-principal" href="/">
           <svg class="icone" viewBox="0 0 24 24" aria-hidden="true">

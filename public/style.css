@@ -342,7 +342,8 @@ h1 {
 }
 .campo input[type="text"],
 .campo input[type="email"],
-.campo input[type="password"] {
+.campo input[type="password"],
+.campo select {
   width: 100%;
   min-height: 46px;
   padding: 10px 14px;
@@ -353,8 +354,8 @@ h1 {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .campo input::placeholder { color: #9aa4b2; }
-.campo input:hover { border-color: #c7cfda; }
-.campo input:focus-visible {
+.campo input:hover, .campo select:hover { border-color: #c7cfda; }
+.campo input:focus-visible, .campo select:focus-visible {
   outline: none;
   border-color: var(--azul);
   box-shadow: 0 0 0 3px rgba(26, 63, 156, 0.15);

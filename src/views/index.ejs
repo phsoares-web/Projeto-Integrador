@@ -4,7 +4,7 @@
   <%- include("partials/head", { titulo: "Transcrição de aulas em tempo real", descricao: "O Senac Transcreve transforma a fala da aula em texto em tempo real, para que ninguém fique de fora." }) %>
   <script src="/app.js" defer></script>
 </head>
-<body>
+<body data-transcricao-usuario="<%= usuario ? usuario.id : 'visitante' %>">
   <%- include("partials/header", { pagina: "inicio" }) %>
 
   <main id="conteudo">
@@ -118,6 +118,9 @@
                 </svg>
                 <span>Iniciar transcrição</span>
               </button>
+              <button id="pause-button" class="btn btn-secundario" type="button" hidden>Pausar</button>
+              <button id="resume-button" class="btn btn-secundario" type="button" hidden>Retomar</button>
+              <button id="finish-button" class="btn btn-fantasma" type="button" hidden>Finalizar transcrição</button>
               <button id="clear-button" class="btn btn-fantasma" type="button" disabled>Limpar texto</button>
             </div>
             <p class="nota">O microfone só é ligado quando a transcrição é iniciada.</p>
@@ -142,8 +145,11 @@
                   <input id="titulo" name="titulo" type="text" maxlength="75" placeholder="Aula de hoje" required>
                 </div>
                 <div class="campo">
-                  <label for="materia">Matéria <span class="opcional">(opcional)</span></label>
-                  <input id="materia" name="materia" type="text" maxlength="100" placeholder="Português">
+                  <label for="disciplina">Disciplina</label>
+                  <select id="disciplina" name="disciplinaId" required disabled>
+                    <option value="">Carregando disciplinas...</option>
+                  </select>
+                  <p class="aviso">Selecione a disciplina da aula. Alunos veem as disciplinas em que estão matriculados.</p>
                 </div>
               </div>
               <div class="form-acoes">

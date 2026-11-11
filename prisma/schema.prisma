@@ -39,6 +39,7 @@ model Disciplina {
   professor            Usuario               @relation("ProfessorDisciplinas", fields: [professorId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   matriculas           MatriculaDisciplina[]
   transcricoes         Transcricao[]
+  textos               Text[]
   termosPersonalizados TermoPersonalizado[]
 
   @@index([professorId])
@@ -128,11 +129,14 @@ model Text {
   texto   String    @db.LongText
   data    DateTime? @db.Date
   materia String?   @db.VarChar(100)
+  disciplinaId Int?
 
-  usuario Usuario? @relation("UsuarioTextos", fields: [prof_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  resumo  Resumo?
+  usuario    Usuario?    @relation("UsuarioTextos", fields: [prof_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  disciplina Disciplina? @relation(fields: [disciplinaId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  resumo     Resumo?
 
   @@index([prof_id])
+  @@index([disciplinaId])
 }
 
 // Resumo de uma aula (Text). Cada aula tem no máximo um resumo.

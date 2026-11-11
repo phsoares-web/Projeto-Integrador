@@ -21,7 +21,12 @@ const idDaRota = (req: Request): number | null => {
  * Dono pode tudo; admin pode ver e excluir (somenteDono = false).
  * Responde o erro e devolve null quando não pode continuar.
  */
-async function carregarAula(req: Request, res: Response, somenteDono: boolean): Promise<TextoComResumo | null> {
+async function carregarAula(
+  req: Request,
+  res: Response,
+  somenteDono: boolean,
+  permitirAlunoMatriculado = false,
+): Promise<TextoComResumo | null> {
   const id = idDaRota(req);
   if (id === null) {
     res.status(400).json({ erro: "O id deve ser um número inteiro positivo." });
@@ -31,9 +36,14 @@ async function carregarAula(req: Request, res: Response, somenteDono: boolean): 
   const usuario = req.usuario!;
   const ehDono = aula?.prof_id === usuario.id;
   const ehAdmin = usuario.tipo === TipoUsuario.ADMIN;
+  const alunoMatriculadoPodeLer = Boolean(
+    aula && permitirAlunoMatriculado && usuario.tipo === TipoUsuario.ALUNO &&
+    await repo.alunoPodeConsultar(aula.id, usuario.id),
+  );
+  const podeAcessar = ehDono || (!somenteDono && ehAdmin) || alunoMatriculadoPodeLer;
 
   // Para quem não tem acesso, a aula "não existe" (não revela ids de outras pessoas).
-  if (!aula || (!ehDono && (somenteDono || !ehAdmin))) {
+  if (!aula || !podeAcessar) {
     res.status(404).json({ erro: "Aula não encontrada." });
     return null;
   }
@@ -48,10 +58,20 @@ const responderErro = (res: Response, contexto: string, erro: unknown) => {
 export class TextControllers {
   public async salvarTexto(req: Request, res: Response): Promise<void> {
     try {
-      const { titulo, texto, materia } = req.body ?? {};
-      const materiaInformada = typeof materia === "string" && materia.trim() ? materia : null;
-      // O dono é sempre o usuário logado; um profId vindo do corpo é ignorado.
-      const dados = Text.toDataBase(req.usuario!.id, titulo, texto, new Date(), materiaInformada);
+      const { titulo, texto, disciplinaId } = req.body ?? {};
+      const idDisciplina = typeof disciplinaId === "number" ? disciplinaId : Number(disciplinaId);
+      if (!Number.isInteger(idDisciplina) || idDisciplina <= 0) {
+        res.status(400).json({ erro: "Selecione uma disciplina válida para salvar a aula." });
+        return;
+      }
+      const usuario = req.usuario!;
+      const disciplina = await repo.buscarDisciplinaDisponivel(idDisciplina, usuario.id, usuario.tipo);
+      if (!disciplina) {
+        res.status(400).json({ erro: "A disciplina não está disponível para sua conta." });
+        return;
+      }
+      // O autor vem da sessão. A disciplina e o professor são confirmados no banco.
+      const dados = Text.toDataBase(usuario.id, titulo, texto, new Date(), disciplina.nome, disciplina.id);
       const textoSalvo = await repo.criarText(dados);
       res.status(201).json(textoSalvo);
     } catch (erro) {
@@ -65,15 +85,24 @@ export class TextControllers {
 
   public async listarMinhas(req: Request, res: Response): Promise<void> {
     try {
-      res.status(200).json(await repo.listarDoUsuario(req.usuario!.id));
+      res.status(200).json(await repo.listarDoUsuario(req.usuario!.id, req.usuario!.tipo));
     } catch (erro) {
       responderErro(res, "buscar suas aulas", erro);
     }
   }
 
+  public async listarDisciplinasDisponiveis(req: Request, res: Response): Promise<void> {
+    try {
+      const usuario = req.usuario!;
+      res.status(200).json(await repo.listarDisciplinasDisponiveis(usuario.id, usuario.tipo));
+    } catch (erro) {
+      responderErro(res, "buscar as disciplinas disponíveis", erro);
+    }
+  }
+
   public async procurarTexto(req: Request, res: Response): Promise<void> {
     try {
-      const aula = await carregarAula(req, res, false);
+      const aula = await carregarAula(req, res, false, true);
       if (aula) res.status(200).json(aula);
     } catch (erro) {
       responderErro(res, "buscar a aula", erro);

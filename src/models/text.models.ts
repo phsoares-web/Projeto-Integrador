@@ -5,6 +5,7 @@ export interface TextRawSQL {
   texto: string;
   data: Date | null;
   materia: string | null;
+  disciplinaId: number | null;
 }
 
 export class Text {
@@ -14,6 +15,7 @@ export class Text {
   private _texto: string;
   private _data: Date | null;
   private _materia: string | null;
+  private _disciplinaId: number | null;
 
   constructor(
     id: number,
@@ -22,6 +24,7 @@ export class Text {
     texto: string,
     data: Date | null = null,
     materia: string | null = null,
+    disciplinaId: number | null = null,
   ) {
     this.id = Text.validarId(id);
     this.profId = Text.validarId(profId);
@@ -29,12 +32,14 @@ export class Text {
     this._texto = Text.validarTexto(texto);
     this._data = data;
     this._materia = materia;
+    this._disciplinaId = disciplinaId == null ? null : Text.validarId(disciplinaId);
   }
 
   get titulo(): string { return this._titulo; }
   get texto(): string { return this._texto; }
   get data(): Date | null { return this._data; }
   get materia(): string | null { return this._materia; }
+  get disciplinaId(): number | null { return this._disciplinaId; }
 
   set titulo(novoTitulo: string) { this._titulo = Text.validarTitulo(novoTitulo); }
   set texto(novoTexto: string) { this._texto = Text.validarTexto(novoTexto); }
@@ -67,6 +72,7 @@ export class Text {
     texto: string,
     data: Date | null = null,
     materia: string | null = null,
+    disciplinaId: number | null = null,
   ): Omit<TextRawSQL, "id"> {
     const materiaNormalizada = materia == null ? null : String(materia).trim();
     if (materiaNormalizada !== null && materiaNormalizada.length > 100) {
@@ -78,10 +84,11 @@ export class Text {
       texto: Text.validarTexto(texto),
       data,
       materia: materiaNormalizada,
+      disciplinaId: disciplinaId == null ? null : Text.validarId(disciplinaId),
     };
   }
 
   public static fromDataBase(item: TextRawSQL): Text {
-    return new Text(item.id, item.prof_id, item.titulo, item.texto, item.data, item.materia);
+    return new Text(item.id, item.prof_id, item.titulo, item.texto, item.data, item.materia, item.disciplinaId);
   }
 }

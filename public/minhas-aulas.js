@@ -1,6 +1,7 @@
 // Área do usuário: lista de aulas salvas, transcrição e resumo de cada uma.
 (function () {
   const $ = (seletor) => document.querySelector(seletor);
+  const usuarioId = Number(document.body.dataset.usuarioId);
 
   const el = {
     carregando: $("#carregando"),
@@ -75,9 +76,11 @@
 
   function atualizarBotoesResumo() {
     const valor = el.resumoTexto.value.trim();
-    el.salvar.disabled = valor.length < 5 || !temAlteracao();
+    const podeEditar = Boolean(atual && Number(atual.prof_id) === usuarioId);
+    el.salvar.disabled = !podeEditar || valor.length < 5 || !temAlteracao();
     el.copiarResumo.disabled = !valor;
-    el.excluirResumo.hidden = !resumoSalvo;
+    el.excluirResumo.hidden = !podeEditar || !resumoSalvo;
+    el.gerar.hidden = !podeEditar;
     const palavras = valor ? valor.split(/\s+/).length : 0;
     el.resumoContador.textContent = `${palavras} palavra${palavras === 1 ? "" : "s"}${temAlteracao() && valor ? " · alterações não salvas" : ""}`;
   }
@@ -102,7 +105,11 @@
         titulo.textContent = aula.titulo;
         const meta = document.createElement("span");
         meta.className = "item-aula-meta";
-        meta.textContent = [aula.materia, App.formatarData(aula.data)].filter(Boolean).join(" · ");
+        meta.textContent = [
+          aula.materia,
+          aula.disciplina?.professor?.nome ? `Prof. ${aula.disciplina.professor.nome}` : "",
+          App.formatarData(aula.data),
+        ].filter(Boolean).join(" · ");
         const selo = document.createElement("span");
         selo.className = aula.resumo ? "selo selo-ok" : "selo";
         selo.textContent = aula.resumo ? "Com resumo" : "Sem resumo";
@@ -144,17 +151,31 @@
     }
 
     history.replaceState(null, "", `/minhas-aulas?aula=${id}`);
+    const podeEditar = Number(atual.prof_id) === usuarioId;
     el.titulo.textContent = atual.titulo;
-    el.meta.textContent = [atual.materia, App.formatarData(atual.data, { dateStyle: "long" })]
+    el.meta.textContent = [
+      atual.materia,
+      atual.disciplina?.professor?.nome ? `Professor: ${atual.disciplina.professor.nome}` : "",
+      App.formatarData(atual.data, { dateStyle: "long" }),
+    ]
       .filter(Boolean)
       .join(" · ");
     el.texto.textContent = atual.texto;
+    el.excluirAula.hidden = !podeEditar;
+    el.gerar.hidden = !podeEditar;
+    el.salvar.hidden = !podeEditar;
+    el.excluirResumo.hidden = !podeEditar || !atual.resumo;
+    el.resumoTexto.readOnly = !podeEditar;
 
     resumoSalvo = atual.resumo ? atual.resumo.conteudo : "";
     el.resumoTexto.value = resumoSalvo;
-    el.resumoStatus.textContent = atual.resumo
-      ? `Salvo em ${new Date(atual.resumo.atualizadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}`
-      : "Esta aula ainda não tem resumo.";
+    el.resumoStatus.textContent = podeEditar
+      ? atual.resumo
+        ? `Salvo em ${new Date(atual.resumo.atualizadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}`
+        : "Esta aula ainda não tem resumo."
+      : atual.resumo
+        ? "Resumo disponibilizado pelo professor."
+        : "O professor ainda não disponibilizou um resumo para esta aula.";
     mensagem("", "");
     atualizarBotoesResumo();
     renderizarLista();
@@ -170,6 +191,7 @@
   el.copiarResumo.addEventListener("click", () => copiar(el.resumoTexto.value.trim(), el.copiarResumo));
 
   el.gerar.addEventListener("click", async () => {
+    if (!atual || Number(atual.prof_id) !== usuarioId) return;
     if (el.resumoTexto.value.trim() && el.gerar.dataset.confirmar !== "1") {
       el.gerar.dataset.confirmar = "1";
       mensagem("O resumo atual será substituído pela sugestão. Clique em “Gerar” de novo para confirmar.", "erro");
@@ -248,7 +270,7 @@
   });
 
   window.addEventListener("beforeunload", (e) => {
-    if (atual && temAlteracao() && el.resumoTexto.value.trim()) e.preventDefault();
+    if (atual && Number(atual.prof_id) === usuarioId && temAlteracao() && el.resumoTexto.value.trim()) e.preventDefault();
   });
 
   /* ----- início ----- */

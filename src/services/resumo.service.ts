@@ -1,7 +1,7 @@
-// Resumo extrativo simples, sem serviços externos:
-// 1. divide a transcrição em frases;
-// 2. pontua cada frase pela frequência das palavras relevantes (ignorando "stopwords");
-// 3. devolve as frases mais importantes na ordem em que foram ditas + palavras-chave.
+// Resumo extrativo, sem serviços externos e sem acrescentar fatos à transcrição:
+// 1. divide o texto completo em frases;
+// 2. pontua as frases pela frequência de palavras relevantes;
+// 3. seleciona os pontos mais informativos e os devolve na ordem original.
 
 const STOPWORDS = new Set(
   (
@@ -12,37 +12,39 @@ const STOPWORDS = new Set(
     "quem porque porquê pois foi ser são era eram está estão estava estavam tem têm tinha ter há haver vai vão " +
     "vou fazer faz fez feito pode podem tá né tipo coisa coisas gente bom boa bem assim ainda depois antes até " +
     "sobre entre cada todo toda todos todas outro outra outros outras mesmo mesma vez vezes agora hoje dia ok " +
-    "certo olha ah eh hum uhum gente aula professor professora pessoal vamos vamo próxima próximo turma bom dia"
+    "certo olha ah eh hum uhum aula professor professora pessoal vamos vamo próxima próximo turma bom dia"
   ).split(/\s+/),
 );
 
-const normalizar = (palavra: string) =>
-  palavra.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-
+const normalizar = (palavra: string) => palavra.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 const STOPWORDS_NORMALIZADAS = new Set([...STOPWORDS].map(normalizar));
 
 function palavrasDe(frase: string): string[] {
   return (frase.match(/[\p{L}\p{N}]+/gu) ?? [])
     .map(normalizar)
-    .filter((p) => p.length > 2 && !STOPWORDS_NORMALIZADAS.has(p));
+    .filter((palavra) => palavra.length > 2 && !STOPWORDS_NORMALIZADAS.has(palavra));
 }
 
 function dividirEmFrases(texto: string): string[] {
   const limpo = texto.replace(/\s+/g, " ").trim();
-  let frases = limpo.split(/(?<=[.!?…])\s+/).map((f) => f.trim()).filter(Boolean);
+  if (!limpo) return [];
 
-  // Transcrições sem pontuação viram blocos de ~20 palavras.
-  const quebrarLonga = (frase: string): string[] => {
-    const palavras = frase.split(" ");
+  const frases = limpo.split(/(?<=[.!?…])\s+/).map((frase) => frase.trim()).filter(Boolean);
+  const blocos = frases.flatMap((frase) => {
+    const palavras = frase.split(/\s+/);
     if (palavras.length <= 35) return [frase];
-    const blocos: string[] = [];
-    for (let i = 0; i < palavras.length; i += 20) blocos.push(palavras.slice(i, i + 20).join(" "));
-    return blocos;
-  };
-  frases = frases.flatMap(quebrarLonga);
 
-  return frases.map((f) => {
-    const comMaiuscula = f.charAt(0).toUpperCase() + f.slice(1);
+    // Transcrições de voz podem chegar sem pontuação; quebra em blocos limitados,
+    // mantendo a sequência original das palavras.
+    const resultado: string[] = [];
+    for (let indice = 0; indice < palavras.length; indice += 20) {
+      resultado.push(palavras.slice(indice, indice + 20).join(" "));
+    }
+    return resultado;
+  });
+
+  return blocos.map((frase) => {
+    const comMaiuscula = frase.charAt(0).toLocaleUpperCase("pt-BR") + frase.slice(1);
     return /[.!?…]$/.test(comMaiuscula) ? comMaiuscula : `${comMaiuscula}.`;
   });
 }
@@ -54,43 +56,57 @@ export interface ResumoGerado {
 }
 
 export function gerarResumo(titulo: string, transcricao: string): ResumoGerado {
-  const frases = dividirEmFrases(transcricao);
+  const frases = dividirEmFrases(typeof transcricao === "string" ? transcricao : "");
+  const tituloAula = typeof titulo === "string" && titulo.trim() ? titulo.trim() : "Aula";
+
+  if (frases.length === 0) {
+    const texto = `Resumo da aula: ${tituloAula}\n\nNenhuma transcrição disponível para resumir.`;
+    return { topicos: [], palavrasChave: [], texto };
+  }
 
   const frequencia = new Map<string, number>();
   const formaOriginal = new Map<string, string>();
   for (const frase of frases) {
     for (const bruta of frase.match(/[\p{L}\p{N}]+/gu) ?? []) {
-      const p = normalizar(bruta);
-      if (p.length <= 2 || STOPWORDS_NORMALIZADAS.has(p)) continue;
-      frequencia.set(p, (frequencia.get(p) ?? 0) + 1);
-      if (!formaOriginal.has(p)) formaOriginal.set(p, bruta.toLowerCase());
+      const palavra = normalizar(bruta);
+      if (palavra.length <= 2 || STOPWORDS_NORMALIZADAS.has(palavra)) continue;
+      frequencia.set(palavra, (frequencia.get(palavra) ?? 0) + 1);
+      if (!formaOriginal.has(palavra)) formaOriginal.set(palavra, bruta.toLocaleLowerCase("pt-BR"));
     }
   }
-  const maiorFrequencia = Math.max(1, ...frequencia.values());
+
+  // Não espalha todas as frequências como argumentos de Math.max: textos extensos
+  // poderiam exceder o limite de argumentos do JavaScript.
+  let maiorFrequencia = 1;
+  for (const ocorrencias of frequencia.values()) maiorFrequencia = Math.max(maiorFrequencia, ocorrencias);
 
   const pontuadas = frases.map((frase, indice) => {
     const palavras = palavrasDe(frase);
-    const soma = palavras.reduce((total, p) => total + (frequencia.get(p) ?? 0) / maiorFrequencia, 0);
-    // Divide pela raiz do tamanho para não favorecer só frases longas.
+    const soma = palavras.reduce((total, palavra) => total + (frequencia.get(palavra) ?? 0) / maiorFrequencia, 0);
+    // Divide pela raiz do tamanho para equilibrar frases curtas e longas.
     const pontuacao = palavras.length ? soma / Math.sqrt(palavras.length) : 0;
     return { frase, indice, pontuacao, tamanho: palavras.length };
   });
 
-  const quantidade = Math.min(8, Math.max(1, Math.round(frases.length * 0.3)));
-  const topicos = pontuadas
-    .filter((f) => f.tamanho >= 3 || frases.length <= 3)
-    .sort((a, b) => b.pontuacao - a.pontuacao)
+  // Se todas as frases contiverem apenas palavras comuns/curtas, ainda é melhor
+  // selecionar trechos reais na ordem original do que devolver um resumo vazio.
+  const candidatas = pontuadas.some((frase) => frase.tamanho > 0)
+    ? pontuadas.filter((frase) => frase.tamanho > 0)
+    : pontuadas;
+  const quantidade = Math.min(8, Math.max(1, Math.round(candidatas.length * 0.3)));
+  const topicos = [...candidatas]
+    .sort((a, b) => b.pontuacao - a.pontuacao || a.indice - b.indice)
     .slice(0, quantidade)
     .sort((a, b) => a.indice - b.indice)
-    .map((f) => f.frase);
+    .map((frase) => frase.frase);
 
   const palavrasChave = [...frequencia.entries()]
-    .filter(([, n]) => n > 1 || frequencia.size < 6)
+    .filter(([, ocorrencias]) => ocorrencias > 1 || frequencia.size < 6)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)
-    .map(([p]) => formaOriginal.get(p) ?? p);
+    .map(([palavra]) => formaOriginal.get(palavra) ?? palavra);
 
-  const linhas = [`Resumo da aula: ${titulo}`, "", "Principais pontos:", ...topicos.map((t) => `• ${t}`)];
+  const linhas = [`Resumo da aula: ${tituloAula}`, "", "Principais pontos:", ...topicos.map((topico) => `• ${topico}`)];
   if (palavrasChave.length) linhas.push("", `Palavras-chave: ${palavrasChave.join(", ")}.`);
 
   return { topicos, palavrasChave, texto: linhas.join("\n") };

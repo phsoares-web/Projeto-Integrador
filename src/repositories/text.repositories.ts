@@ -1,11 +1,19 @@
 import { Prisma, type Resumo, type Text as PrismaText } from "../../generated/prisma/client";
 import { prisma } from "../lib/prisma";
 import type { TextRawSQL } from "../models/text.models";
+import { TipoUsuario } from "../models/user.models";
 
 const naoEncontrado = (erro: unknown) =>
   erro instanceof Prisma.PrismaClientKnownRequestError && erro.code === "P2025";
 
-export type TextoComResumo = PrismaText & { resumo: Resumo | null };
+export type TextoComResumo = PrismaText & {
+  resumo: Resumo | null;
+  disciplina: { id: number; nome: string; professorId: number; professor: { id: number; nome: string } } | null;
+};
+
+const disciplinaComProfessor = {
+  select: { id: true, nome: true, professorId: true, professor: { select: { id: true, nome: true } } },
+} as const;
 
 export class TextRepositories {
   public criarText(item: Omit<TextRawSQL, "id">): Promise<PrismaText> {
@@ -13,16 +21,77 @@ export class TextRepositories {
   }
 
   public buscarPorId(id: number): Promise<TextoComResumo | null> {
-    return prisma.text.findUnique({ where: { id }, include: { resumo: true } });
+    return prisma.text.findUnique({
+      where: { id },
+      include: { resumo: true, disciplina: disciplinaComProfessor },
+    });
   }
 
-  /** Aulas do usuário, mais recentes primeiro, indicando se já têm resumo. */
-  public listarDoUsuario(usuarioId: number) {
+  /** Aulas próprias; alunos também consultam aulas publicadas por docentes de suas disciplinas. */
+  public async listarDoUsuario(usuarioId: number, tipo: TipoUsuario) {
+    const acessos: Prisma.TextWhereInput[] = [{ prof_id: usuarioId }];
+    if (tipo === TipoUsuario.ALUNO) {
+      const disciplinas = await prisma.disciplina.findMany({
+        where: { matriculas: { some: { alunoId: usuarioId } } },
+        select: { id: true, professorId: true },
+      });
+      for (const disciplina of disciplinas) {
+        // Só compartilha o texto salvo pelo próprio professor responsável;
+        // textos pessoais de outros alunos continuam privados.
+        acessos.push({ disciplinaId: disciplina.id, prof_id: disciplina.professorId });
+      }
+    }
+
     return prisma.text.findMany({
-      where: { prof_id: usuarioId },
+      where: { OR: acessos },
       orderBy: { id: "desc" },
-      include: { resumo: { select: { id: true, atualizadoEm: true } } },
+      include: {
+        resumo: { select: { id: true, atualizadoEm: true } },
+        disciplina: disciplinaComProfessor,
+      },
     });
+  }
+
+  public listarDisciplinasDisponiveis(usuarioId: number, tipo: TipoUsuario) {
+    const where = tipo === TipoUsuario.PROFESSOR
+      ? { professorId: usuarioId }
+      : { matriculas: { some: { alunoId: usuarioId } } };
+    return prisma.disciplina.findMany({
+      where,
+      orderBy: { nome: "asc" },
+      select: { id: true, nome: true, professor: { select: { id: true, nome: true } } },
+    });
+  }
+
+  public buscarDisciplinaDisponivel(disciplinaId: number, usuarioId: number, tipo: TipoUsuario) {
+    const where = tipo === TipoUsuario.PROFESSOR
+      ? { id: disciplinaId, professorId: usuarioId }
+      : { id: disciplinaId, matriculas: { some: { alunoId: usuarioId } } };
+    return prisma.disciplina.findFirst({
+      where,
+      select: { id: true, nome: true, professorId: true },
+    });
+  }
+
+  /** Aluno matriculado só lê texto cujo autor é o professor responsável pela disciplina. */
+  public async alunoPodeConsultar(id: number, alunoId: number): Promise<boolean> {
+    const texto = await prisma.text.findUnique({
+      where: { id },
+      select: {
+        prof_id: true,
+        disciplina: {
+          select: {
+            professorId: true,
+            matriculas: { where: { alunoId }, select: { id: true } },
+          },
+        },
+      },
+    });
+    return Boolean(
+      texto?.disciplina &&
+      texto.prof_id === texto.disciplina.professorId &&
+      texto.disciplina.matriculas.length > 0,
+    );
   }
 
   public async atualizar(id: number, conteudo: Prisma.TextUpdateInput): Promise<PrismaText | null> {

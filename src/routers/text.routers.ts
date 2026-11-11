@@ -10,6 +10,7 @@ const controller = new TextControllers();
 const usuarioComum = exigirTipo(TipoUsuario.ALUNO, TipoUsuario.PROFESSOR);
 
 router.get("/me/textos", usuarioComum, (req, res) => controller.listarMinhas(req, res));
+router.get("/texto/disciplinas", usuarioComum, (req, res) => controller.listarDisciplinasDisponiveis(req, res));
 
 router.post("/texto", usuarioComum, (req, res) => controller.salvarTexto(req, res));
 router.get("/texto/:id", exigirLogin, (req, res) => controller.procurarTexto(req, res));
